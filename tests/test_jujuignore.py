@@ -339,9 +339,9 @@ def assertMatchedAndNonMatched(globs, matched, unmatched, skip_git=False):
             universal_newlines=True,
         )
     matched_out = p.stdout.splitlines()
-    assert sorted(matched) == sorted(
-        matched_out
-    ), "expected exactly {} to match not {}".format(matched, matched_out)
+    assert sorted(matched) == sorted(matched_out), "expected exactly {} to match not {}".format(
+        matched, matched_out
+    )
 
 
 def test_star_vs_star_start():

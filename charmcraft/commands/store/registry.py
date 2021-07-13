@@ -73,9 +73,7 @@ def assert_response_ok(
 
     result = response.json()
     if "errors" in result:
-        raise CommandError(
-            "Response with errors from server: {}".format(result["errors"])
-        )
+        raise CommandError("Response with errors from server: {}".format(result["errors"]))
     return result
 
 
@@ -89,9 +87,7 @@ class OCIRegistry:
 
         if username:
             _u_p = "{}:{}".format(username, password)
-            self.auth_encoded_credentials = base64.b64encode(
-                _u_p.encode("ascii")
-            ).decode("ascii")
+            self.auth_encoded_credentials = base64.b64encode(_u_p.encode("ascii")).decode("ascii")
         else:
             self.auth_encoded_credentials = None
 
@@ -199,9 +195,7 @@ class OCIRegistry:
             "Content-Type": MANIFEST_V2_MIMETYPE,
         }
         logger.debug("Uploading manifest with reference %s", reference)
-        response = self._hit(
-            "PUT", url, headers=headers, data=manifest_data.encode("utf8")
-        )
+        response = self._hit("PUT", url, headers=headers, data=manifest_data.encode("utf8"))
         assert_response_ok(response, expected_status=201)
         logger.debug("Manifest uploaded OK")
 
@@ -213,12 +207,8 @@ class OCIRegistry:
         response = self._hit("POST", url)
         assert_response_ok(response, expected_status=202)
         upload_url = response.headers["Location"]
-        range_from, range_to_inclusive = [
-            int(x) for x in response.headers["Range"].split("-")
-        ]
-        logger.debug(
-            "Got upload URL ok with range %s-%s", range_from, range_to_inclusive
-        )
+        range_from, range_to_inclusive = [int(x) for x in response.headers["Range"].split("-")]
+        logger.debug("Got upload URL ok with range %s-%s", range_from, range_to_inclusive)
         if range_from != 0:
             raise CommandError("Server error: bad range received")
 
@@ -251,9 +241,7 @@ class OCIRegistry:
                 # XXX Facundo 2021-06-14: replace this print for the proper call to show progress
                 # when we have integrated the full "messages to the user" library (GH #381)
                 print("Uploading.. {:.2f}%\r".format(progress), end="", flush=True)
-                response = self._hit(
-                    "PATCH", upload_url, headers=headers, data=chunk, log=False
-                )
+                response = self._hit("PATCH", upload_url, headers=headers, data=chunk, log=False)
                 assert_response_ok(response, expected_status=202)
 
                 upload_url = response.headers["Location"]
@@ -325,9 +313,7 @@ class LocalDockerdInterface:
         # 404 is the standard response to "not found", if not exactly that let's log
         # for proper debugging
         if response.status_code != 404:
-            logger.debug(
-                "Bad response when validation local image: %s", response.status_code
-            )
+            logger.debug("Bad response when validation local image: %s", response.status_code)
 
     def get_streamed_image_content(self, digest: str) -> requests.Response:
         """Stream the content of a specific image."""
@@ -345,9 +331,7 @@ class ImageHandler:
         """Verify if the image is present in the registry."""
         return self.registry.is_manifest_already_uploaded(digest)
 
-    def _extract_file(
-        self, image_tar: str, name: str, compress: bool = False
-    ) -> (str, int, str):
+    def _extract_file(self, image_tar: str, name: str, compress: bool = False) -> (str, int, str):
         """Extract a file from the tar and return its info. Optionally, gzip the content."""
         logger.debug("Extracting file %r from local tar (compress=%s)", name, compress)
         src_filehandler = image_tar.extractfile(name)
@@ -441,9 +425,7 @@ class ImageHandler:
 
         manifest["layers"] = manifest_layers = []
         for idx, layer_name in enumerate(layer_names, 1):
-            fpath, size, digest = self._extract_file(
-                image_tar, layer_name, compress=True
-            )
+            fpath, size, digest = self._extract_file(image_tar, layer_name, compress=True)
             logger.debug(
                 "Uploading layer blob %s/%s, size=%s, digest=%s",
                 idx,
@@ -465,8 +447,6 @@ class ImageHandler:
 
         # upload the manifest
         manifest_data = json.dumps(manifest)
-        digest = "sha256:{}".format(
-            hashlib.sha256(manifest_data.encode("utf8")).hexdigest()
-        )
+        digest = "sha256:{}".format(hashlib.sha256(manifest_data.encode("utf8")).hexdigest())
         self.registry.upload_manifest(manifest_data, digest)
         return digest

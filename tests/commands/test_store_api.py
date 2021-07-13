@@ -30,9 +30,7 @@ from charmcraft.commands.store.store import Store, Library
 def client_mock():
     """Fixture to provide a mocked client."""
     client_mock = MagicMock()
-    with patch(
-        "charmcraft.commands.store.store.Client", lambda api, storage: client_mock
-    ):
+    with patch("charmcraft.commands.store.store.Client", lambda api, storage: client_mock):
         yield client_mock
 
 
@@ -161,9 +159,7 @@ def test_upload_straightforward(client_mock, caplog, config):
     test_revision = 123
     test_status_ok = "test-status"
     status_response = {
-        "revisions": [
-            {"status": test_status_ok, "revision": test_revision, "errors": None}
-        ]
+        "revisions": [{"status": test_status_ok, "revision": test_revision, "errors": None}]
     }
     client_mock.get.return_value = status_response
 
@@ -171,9 +167,7 @@ def test_upload_straightforward(client_mock, caplog, config):
     fake_statuses = {test_status_ok: test_status_resolution}
     test_filepath = "test-filepath"
     test_endpoint = "/v1/test/revisions/endpoint/"
-    with patch.dict(
-        "charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses
-    ):
+    with patch.dict("charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses):
         result = store._upload(test_endpoint, test_filepath)
 
     # check all client calls
@@ -217,9 +211,7 @@ def test_upload_polls_status(client_mock, caplog, config):
         "revisions": [{"status": "more-revisions", "revision": None, "errors": None}]
     }
     status_response_3 = {
-        "revisions": [
-            {"status": test_status_ok, "revision": test_revision, "errors": None}
-        ]
+        "revisions": [{"status": test_status_ok, "revision": test_revision, "errors": None}]
     }
     client_mock.get.side_effect = [
         status_response_1,
@@ -229,9 +221,7 @@ def test_upload_polls_status(client_mock, caplog, config):
 
     test_status_resolution = "clean and crispy"
     fake_statuses = {test_status_ok: test_status_resolution}
-    with patch.dict(
-        "charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses
-    ):
+    with patch.dict("charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses):
         with patch("charmcraft.commands.store.store.POLL_DELAY", 0.01):
             result = store._upload("/test/endpoint/", "some-filepath")
 
@@ -289,9 +279,7 @@ def test_upload_error(client_mock, config):
     test_status_resolution = "test-ok-or-not"
     fake_statuses = {test_status_bad: test_status_resolution}
     test_filepath = "test-filepath"
-    with patch.dict(
-        "charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses
-    ):
+    with patch.dict("charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses):
         result = store._upload("/test/endpoint/", test_filepath)
 
     # check result
@@ -324,9 +312,7 @@ def test_upload_resources_endpoint(config):
 
     with patch.object(store, "_upload") as mock:
         mock.return_value = test_results
-        result = store.upload_resource(
-            "test-charm", "test-resource", "test-type", "test-filepath"
-        )
+        result = store.upload_resource("test-charm", "test-resource", "test-type", "test-filepath")
     expected_endpoint = "/v1/charm/test-charm/resources/test-resource/revisions"
     mock.assert_called_once_with(
         expected_endpoint, "test-filepath", extra_fields={"type": "test-type"}
@@ -351,9 +337,7 @@ def test_upload_including_extra_parameters(client_mock, caplog, config):
     test_revision = 123
     test_status_ok = "test-status"
     status_response = {
-        "revisions": [
-            {"status": test_status_ok, "revision": test_revision, "errors": None}
-        ]
+        "revisions": [{"status": test_status_ok, "revision": test_revision, "errors": None}]
     }
     client_mock.get.return_value = status_response
 
@@ -362,17 +346,13 @@ def test_upload_including_extra_parameters(client_mock, caplog, config):
     test_filepath = "test-filepath"
     test_endpoint = "/v1/test/revisions/endpoint/"
     extra_fields = {"extra-key": "1", "more": "2"}
-    with patch.dict(
-        "charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses
-    ):
+    with patch.dict("charmcraft.commands.store.store.UPLOAD_ENDING_STATUSES", fake_statuses):
         store._upload(test_endpoint, test_filepath, extra_fields=extra_fields)
 
     # check all client calls
     assert client_mock.mock_calls == [
         call.push(test_filepath),
-        call.post(
-            test_endpoint, {"upload-id": test_upload_id, "extra-key": "1", "more": "2"}
-        ),
+        call.post(test_endpoint, {"upload-id": test_upload_id, "extra-key": "1", "more": "2"}),
         call.get(test_status_url),
     ]
 
@@ -391,9 +371,7 @@ def test_list_revisions_ok(client_mock, config):
                 "created-at": "2020-06-29T22:11:00.123",
                 "status": "approved",
                 "errors": None,
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             }
         ]
     }
@@ -435,9 +413,7 @@ def test_list_revisions_errors(client_mock, config):
                     {"message": "error text 1", "code": "error-code-1"},
                     {"message": "error text 2", "code": "error-code-2"},
                 ],
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             }
         ]
     }
@@ -466,9 +442,7 @@ def test_list_revisions_several_mixed(client_mock, config):
                 "errors": [
                     {"message": "error", "code": "code"},
                 ],
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             },
             {
                 "revision": 2,
@@ -476,9 +450,7 @@ def test_list_revisions_several_mixed(client_mock, config):
                 "created-at": "2020-06-29T22:11:02",
                 "status": "approved",
                 "errors": None,
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             },
         ]
     }
@@ -613,9 +585,7 @@ def test_status_ok(client_mock, config):
                 "created-at": "2020-06-29T22:11:05",
                 "status": "approved",
                 "errors": None,
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             },
             {
                 "revision": 10,
@@ -623,9 +593,7 @@ def test_status_ok(client_mock, config):
                 "created-at": "2020-06-29T22:11:10",
                 "status": "approved",
                 "errors": None,
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             },
         ],
     }
@@ -751,9 +719,7 @@ def test_status_with_resources(client_mock, config):
                 "created-at": "2020-06-29T22:11:05",
                 "status": "approved",
                 "errors": None,
-                "bases": [
-                    {"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}
-                ],
+                "bases": [{"architecture": "amd64", "channel": "20.04", "name": "ubuntu"}],
             },
         ],
     }
@@ -795,9 +761,7 @@ def test_create_library_id(client_mock, config):
     result = store.create_library_id("test-charm-name", "test-lib-name")
 
     assert client_mock.mock_calls == [
-        call.post(
-            "/v1/charm/libraries/test-charm-name", {"library-name": "test-lib-name"}
-        ),
+        call.post("/v1/charm/libraries/test-charm-name", {"library-name": "test-lib-name"}),
     ]
     assert result == "test-lib-id"
 
@@ -869,11 +833,7 @@ def test_get_library(client_mock, config):
     result_lib = store.get_library(test_charm_name, test_lib_id, test_api)
 
     assert client_mock.mock_calls == [
-        call.get(
-            "/v1/charm/libraries/test-charm-name/{}?api={}".format(
-                test_lib_id, test_api
-            )
-        ),
+        call.get("/v1/charm/libraries/test-charm-name/{}?api={}".format(test_lib_id, test_api)),
     ]
     assert result_lib.api == test_api
     assert result_lib.content == test_content
@@ -1246,9 +1206,7 @@ def test_get_oci_registry_credentials(client_mock, config):
     result = store.get_oci_registry_credentials("charm-name", "resource-name")
 
     assert client_mock.mock_calls == [
-        call.get(
-            "/v1/charm/charm-name/resources/resource-name/oci-image/upload-credentials"
-        )
+        call.get("/v1/charm/charm-name/resources/resource-name/oci-image/upload-credentials")
     ]
     assert result.image_name == "test-image-name"
     assert result.username == "jane-doe"
@@ -1259,9 +1217,7 @@ def test_get_oci_image_blob(client_mock, config):
     """Get the blob generated by Charmhub to refer to the OCI image."""
     store = Store(config.charmhub)
     client_mock.post.return_value = "some opaque stuff"
-    result = store.get_oci_image_blob(
-        "charm-name", "resource-name", "a-very-specific-digest"
-    )
+    result = store.get_oci_image_blob("charm-name", "resource-name", "a-very-specific-digest")
 
     assert client_mock.mock_calls == [
         call.post(

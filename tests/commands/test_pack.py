@@ -101,10 +101,7 @@ def test_resolve_bundle_with_requirement(config):
 
     with pytest.raises(CommandError) as cm:
         PackCommand("group", config).run(args)
-    assert (
-        str(cm.value)
-        == "The -r/--requirement option is valid only when packing a charm"
-    )
+    assert str(cm.value) == "The -r/--requirement option is valid only when packing a charm"
 
 
 def test_resolve_bundle_with_entrypoint(config):
@@ -144,9 +141,7 @@ def test_bundle_simple_succesful_build(tmp_path, caplog, bundle_yaml, config):
 
     # check the manifest is present and with particular values that depend on given info
     manifest = yaml.safe_load(zf.read("manifest.yaml"))
-    assert (
-        manifest["charmcraft-started-at"] == config.project.started_at.isoformat() + "Z"
-    )
+    assert manifest["charmcraft-started-at"] == config.project.started_at.isoformat() + "Z"
 
     # verify that the manifest was not leftover in user's project
     assert not (tmp_path / "manifest.yaml").exists()
@@ -170,9 +165,7 @@ def test_bundle_missing_other_mandatory_file(tmp_path, config, bundle_yaml):
     # build without a README!
     with pytest.raises(CommandError) as cm:
         PackCommand("group", config).run(noargs)
-    assert str(cm.value) == "Missing mandatory file: {!r}.".format(
-        str(tmp_path / "README.md")
-    )
+    assert str(cm.value) == "Missing mandatory file: {!r}.".format(str(tmp_path / "README.md"))
 
 
 def test_bundle_missing_name_in_bundle(tmp_path, bundle_yaml, config):
@@ -441,9 +434,7 @@ def test_charm_parameters_validator(config, tmp_path):
         type="charm",
         project=Project(dirpath=tmp_path, started_at=datetime.datetime.utcnow()),
     )
-    with patch(
-        "charmcraft.commands.build.Validator", autospec=True
-    ) as validator_class_mock:
+    with patch("charmcraft.commands.build.Validator", autospec=True) as validator_class_mock:
         validator_class_mock.return_value = validator_instance_mock = MagicMock()
         with patch("charmcraft.commands.build.Builder"):
             PackCommand("group", config).run(args)

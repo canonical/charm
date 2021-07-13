@@ -189,9 +189,7 @@ class JujuIgnore:
                 regex=regex,
             )
             self._matchers.append(m)
-            logger.debug(
-                'Translated .jujuignore %d "%s" => "%s"', line_num, orig_rule, regex
-            )
+            logger.debug('Translated .jujuignore %d "%s" => "%s"', line_num, orig_rule, regex)
 
     def match(self, path: str, is_dir: bool) -> bool:
         """Check if the given path should be ignored.

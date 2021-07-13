@@ -37,9 +37,7 @@ Revision = namedtuple("Revision", "revision version created_at status errors bas
 Error = namedtuple("Error", "message code")
 Release = namedtuple("Release", "revision channel expires_at resources base")
 Channel = namedtuple("Channel", "name fallback track risk branch")
-Library = namedtuple(
-    "Library", "api content content_hash lib_id lib_name charm_name patch"
-)
+Library = namedtuple("Library", "api content content_hash lib_id lib_name charm_name patch")
 Resource = namedtuple("Resource", "name optional revision resource_type")
 ResourceRevision = namedtuple("ResourceRevision", "revision created_at size")
 RegistryCredentials = namedtuple("RegistryCredentials", "image_name username password")
@@ -202,9 +200,7 @@ class Store:
 
     def upload_resource(self, charm_name, resource_name, resource_type, filepath):
         """Upload the content of filepath to the indicated resource."""
-        endpoint = "/v1/charm/{}/resources/{}/revisions".format(
-            charm_name, resource_name
-        )
+        endpoint = "/v1/charm/{}/resources/{}/revisions".format(charm_name, resource_name)
         return self._upload(endpoint, filepath, extra_fields={"type": resource_type})
 
     def list_revisions(self, name):
@@ -267,9 +263,7 @@ class Store:
         lib_id = response["library-id"]
         return lib_id
 
-    def create_library_revision(
-        self, charm_name, lib_id, api, patch, content, content_hash
-    ):
+    def create_library_revision(self, charm_name, lib_id, api, patch, content, content_hash):
         """Create a new library revision."""
         endpoint = "/v1/charm/libraries/{}/{}".format(charm_name, lib_id)
         payload = {
@@ -315,10 +309,7 @@ class Store:
             payload.append(item)
         response = self._client.post(endpoint, payload)
         libraries = response["libraries"]
-        result = {
-            (item["library-id"], item["api"]): _build_library(item)
-            for item in libraries
-        }
+        result = {(item["library-id"], item["api"]): _build_library(item) for item in libraries}
         return result
 
     def list_resources(self, charm):
@@ -329,9 +320,7 @@ class Store:
 
     def list_resource_revisions(self, charm_name, resource_name):
         """Return revisions for the indicated charm resource."""
-        endpoint = "/v1/charm/{}/resources/{}/revisions".format(
-            charm_name, resource_name
-        )
+        endpoint = "/v1/charm/{}/resources/{}/revisions".format(charm_name, resource_name)
         response = self._client.get(endpoint)
         result = [_build_resource_revision(item) for item in response["revisions"]]
         return result
@@ -351,9 +340,7 @@ class Store:
     def get_oci_image_blob(self, charm_name, resource_name, digest):
         """Get the blob that points to the OCI image in the Canonical's OCI Registry."""
         payload = {"image-digest": digest}
-        endpoint = "/v1/charm/{}/resources/{}/oci-image/blob".format(
-            charm_name, resource_name
-        )
+        endpoint = "/v1/charm/{}/resources/{}/oci-image/blob".format(charm_name, resource_name)
         content = self._client.post(endpoint, payload, parse_json=False)
         # the response here is returned as is, because it's opaque to charmcraft
         return content

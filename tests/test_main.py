@@ -272,9 +272,7 @@ def test_dispatcher_generic_setup_projectdir_without_param_confusing(options):
 
 def test_dispatcher_build_commands_ok():
     """Correct command loading."""
-    cmd0, cmd1, cmd2 = [
-        create_command("cmd-name-{}".format(n), "cmd help") for n in range(3)
-    ]
+    cmd0, cmd1, cmd2 = [create_command("cmd-name-{}".format(n), "cmd help") for n in range(3)]
     groups = [
         ("test-group-A", "whatever title", [cmd0]),
         ("test-group-B", "other title", [cmd1, cmd2]),
@@ -430,13 +428,9 @@ def test_initmsg_default():
     """Without any option, the init msg only goes to disk."""
     cmd = create_command("somecommand")
     fake_stream = io.StringIO()
-    with patch(
-        "charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]
-    ):
+    with patch("charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]):
         with patch.object(logsetup.message_handler, "ended_ok") as ended_ok_mock:
-            with patch.object(
-                logsetup.message_handler._stderr_handler, "stream", fake_stream
-            ):
+            with patch.object(logsetup.message_handler._stderr_handler, "stream", fake_stream):
                 main(["charmcraft", "somecommand"])
 
     # get the logfile first line before removing it
@@ -458,13 +452,9 @@ def test_initmsg_quiet():
     """In quiet mode, the init msg only goes to disk."""
     cmd = create_command("somecommand")
     fake_stream = io.StringIO()
-    with patch(
-        "charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]
-    ):
+    with patch("charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]):
         with patch.object(logsetup.message_handler, "ended_ok") as ended_ok_mock:
-            with patch.object(
-                logsetup.message_handler._stderr_handler, "stream", fake_stream
-            ):
+            with patch.object(logsetup.message_handler._stderr_handler, "stream", fake_stream):
                 main(["charmcraft", "--quiet", "somecommand"])
 
     # get the logfile first line before removing it
@@ -486,13 +476,9 @@ def test_initmsg_verbose():
     """In verbose mode, the init msg goes both to disk and terminal."""
     cmd = create_command("somecommand")
     fake_stream = io.StringIO()
-    with patch(
-        "charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]
-    ):
+    with patch("charmcraft.main.COMMAND_GROUPS", [("test-group", "whatever title", [cmd])]):
         with patch.object(logsetup.message_handler, "ended_ok") as ended_ok_mock:
-            with patch.object(
-                logsetup.message_handler._stderr_handler, "stream", fake_stream
-            ):
+            with patch.object(logsetup.message_handler._stderr_handler, "stream", fake_stream):
                 main(["charmcraft", "--verbose", "somecommand"])
 
     # get the logfile first line before removing it

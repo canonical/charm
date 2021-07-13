@@ -100,9 +100,7 @@ def mock_mkstemp():
 
 @pytest.fixture
 def mock_inject():
-    with mock.patch(
-        "craft_providers.actions.snap_installer.inject_from_host"
-    ) as mock_inject:
+    with mock.patch("craft_providers.actions.snap_installer.inject_from_host") as mock_inject:
         yield mock_inject
 
 
@@ -118,9 +116,7 @@ def clear_environment(monkeypatch):
     monkeypatch.setattr(os, "environ", {})
 
 
-@pytest.mark.parametrize(
-    "alias", [bases.BuilddBaseAlias.BIONIC, bases.BuilddBaseAlias.FOCAL]
-)
+@pytest.mark.parametrize("alias", [bases.BuilddBaseAlias.BIONIC, bases.BuilddBaseAlias.FOCAL])
 def test_base_configuration_setup(mock_executor, mock_inject, monkeypatch, alias):
 
     config = providers.CharmcraftBuilddBaseConfiguration(alias=alias)
@@ -194,18 +190,14 @@ def test_capture_logs_from_instance(mock_executor, mock_logger, mock_mkstemp, tm
     providers.capture_logs_from_instance(mock_executor)
 
     assert mock_executor.mock_calls == [
-        mock.call.pull_file(
-            source=pathlib.Path("/tmp/charmcraft.log"), destination=fake_log
-        ),
+        mock.call.pull_file(source=pathlib.Path("/tmp/charmcraft.log"), destination=fake_log),
     ]
     assert mock_logger.mock_calls == [
         mock.call.debug("Logs captured from managed instance:\n%s", fake_log_data)
     ]
 
 
-def test_capture_logs_from_instance_not_found(
-    mock_executor, mock_logger, mock_mkstemp, tmp_path
-):
+def test_capture_logs_from_instance_not_found(mock_executor, mock_logger, mock_mkstemp, tmp_path):
     fake_log = tmp_path / "x.log"
     mock_mkstemp.return_value = (None, str(fake_log))
     mock_executor.pull_file.side_effect = FileNotFoundError()
@@ -213,16 +205,12 @@ def test_capture_logs_from_instance_not_found(
     providers.capture_logs_from_instance(mock_executor)
 
     assert mock_executor.mock_calls == [
-        mock.call.pull_file(
-            source=pathlib.Path("/tmp/charmcraft.log"), destination=fake_log
-        ),
+        mock.call.pull_file(source=pathlib.Path("/tmp/charmcraft.log"), destination=fake_log),
     ]
     assert mock_logger.mock_calls == [mock.call.debug("No logs found in instance.")]
 
 
-def test_clean_project_environments_without_lxd(
-    mock_lxc, mock_lxd_is_installed, mock_path
-):
+def test_clean_project_environments_without_lxd(mock_lxc, mock_lxd_is_installed, mock_path):
     mock_lxd_is_installed.return_value = False
 
     assert (
@@ -469,9 +457,7 @@ def test_is_base_providable(
 
 @pytest.mark.parametrize("is_installed", [True, False])
 def test_is_provider_available(is_installed):
-    with mock.patch(
-        "charmcraft.providers.lxd_installer.is_installed", return_value=is_installed
-    ):
+    with mock.patch("charmcraft.providers.lxd_installer.is_installed", return_value=is_installed):
         assert providers.is_provider_available() == is_installed
 
 
@@ -496,9 +482,7 @@ def test_launched_environment(
     monkeypatch.setattr(providers, "get_host_architecture", lambda: "host-arch")
     base = Base(name="ubuntu", channel=channel, architectures=["host-arch"])
 
-    with mock.patch(
-        "charmcraft.providers.CharmcraftBuilddBaseConfiguration"
-    ) as mock_base_config:
+    with mock.patch("charmcraft.providers.CharmcraftBuilddBaseConfiguration") as mock_base_config:
         with providers.launched_environment(
             charm_name="test-charm",
             project_path=mock_path,

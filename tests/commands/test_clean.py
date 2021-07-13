@@ -30,9 +30,7 @@ def mock_clean_project_environments():
         yield mock_clean_project_environments
 
 
-def test_clean(
-    caplog, caplog_filter, config, mock_clean_project_environments, tmp_path
-):
+def test_clean(caplog, caplog_filter, config, mock_clean_project_environments, tmp_path):
     logger_name = "charmcraft.commands.clean"
     caplog.set_level(logging.DEBUG, logger=logger_name)
 

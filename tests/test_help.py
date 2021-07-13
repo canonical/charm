@@ -82,13 +82,9 @@ def test_get_usage_message():
 
 def test_default_help_text():
     """All different parts for the default help."""
-    cmd1 = create_command(
-        "cmd1", "Cmd help which is very long but whatever.", common_=True
-    )
+    cmd1 = create_command("cmd1", "Cmd help which is very long but whatever.", common_=True)
     cmd2 = create_command("command-2", "Cmd help.", common_=True)
-    cmd3 = create_command(
-        "cmd3", "Extremely " + "super crazy long " * 5 + " help.", common_=True
-    )
+    cmd3 = create_command("cmd3", "Extremely " + "super crazy long " * 5 + " help.", common_=True)
     cmd4 = create_command("cmd4", "Some help.")
     cmd5 = create_command("cmd5", "More help.")
     cmd6 = create_command("cmd6-really-long", "More help.", common_=True)
@@ -151,13 +147,9 @@ def test_default_help_text():
 
 def test_detailed_help_text():
     """All different parts for the detailed help, showing all commands."""
-    cmd1 = create_command(
-        "cmd1", "Cmd help which is very long but whatever.", common_=True
-    )
+    cmd1 = create_command("cmd1", "Cmd help which is very long but whatever.", common_=True)
     cmd2 = create_command("command-2", "Cmd help.", common_=True)
-    cmd3 = create_command(
-        "cmd3", "Extremely " + "super crazy long " * 5 + " help.", common_=True
-    )
+    cmd3 = create_command("cmd3", "Extremely " + "super crazy long " * 5 + " help.", common_=True)
     cmd4 = create_command("cmd4", "Some help.")
     cmd5 = create_command("cmd5", "More help.")
     cmd6 = create_command("cmd6-really-long", "More help.", common_=True)

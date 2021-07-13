@@ -127,9 +127,7 @@ def test_is_charmcraft_running_in_supported_environment_linux(monkeypatch, as_sn
     "platform",
     ["windows", "darwin"],
 )
-def test_is_charmcraft_running_in_supported_environment_non_linux(
-    monkeypatch, platform
-):
+def test_is_charmcraft_running_in_supported_environment_non_linux(monkeypatch, platform):
     monkeypatch.setattr(sys, "platform", platform)
 
     assert env.is_charmcraft_running_in_supported_environment() is False
@@ -143,12 +141,8 @@ def test_is_charmcraft_running_in_supported_environment_non_linux(
         (True, True),
     ],
 )
-def test_ensure_environment_is_supported(
-    monkeypatch, developer_mode, supported_environment
-):
-    monkeypatch.setattr(
-        env, "is_charmcraft_running_in_developer_mode", lambda: developer_mode
-    )
+def test_ensure_environment_is_supported(monkeypatch, developer_mode, supported_environment):
+    monkeypatch.setattr(env, "is_charmcraft_running_in_developer_mode", lambda: developer_mode)
     monkeypatch.setattr(
         env,
         "is_charmcraft_running_in_supported_environment",
@@ -161,9 +155,7 @@ def test_ensure_environment_is_supported(
 
 def test_ensure_environment_is_supported_error(monkeypatch):
     monkeypatch.setattr(env, "is_charmcraft_running_in_developer_mode", lambda: False)
-    monkeypatch.setattr(
-        env, "is_charmcraft_running_in_supported_environment", lambda: False
-    )
+    monkeypatch.setattr(env, "is_charmcraft_running_in_supported_environment", lambda: False)
     monkeypatch.setattr(sys, "platform", "linux")
 
     with pytest.raises(

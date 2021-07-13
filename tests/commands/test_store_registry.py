@@ -150,9 +150,7 @@ def test_auth_simple(responses):
     )
 
     ocireg = OCIRegistry("https://fakereg.com", "test-image")
-    auth_info = dict(
-        realm="https://auth.fakereg.com", service="test-service", scope="test-scope"
-    )
+    auth_info = dict(realm="https://auth.fakereg.com", service="test-service", scope="test-scope")
     token = ocireg._authenticate(auth_info)
     assert token == "test-token"
     sent_auth_header = responses.calls[0].request.headers.get("Authorization")
@@ -175,9 +173,7 @@ def test_auth_with_credentials(caplog, responses):
         username="test-user",
         password="test-password",
     )
-    auth_info = dict(
-        realm="https://auth.fakereg.com", service="test-service", scope="test-scope"
-    )
+    auth_info = dict(realm="https://auth.fakereg.com", service="test-service", scope="test-scope")
     token = ocireg._authenticate(auth_info)
     assert token == "test-token"
     sent_auth_header = responses.calls[0].request.headers.get("Authorization")
@@ -198,9 +194,7 @@ def test_auth_with_just_username(caplog, responses):
     )
 
     ocireg = OCIRegistry("https://fakereg.com", "test-image", username="test-user")
-    auth_info = dict(
-        realm="https://auth.fakereg.com", service="test-service", scope="test-scope"
-    )
+    auth_info = dict(realm="https://auth.fakereg.com", service="test-service", scope="test-scope")
     token = ocireg._authenticate(auth_info)
     assert token == "test-token"
     sent_auth_header = responses.calls[0].request.headers.get("Authorization")
@@ -247,9 +241,7 @@ def test_hit_simple_re_auth_ok(responses):
             'service="https://fakereg.com",scope="repository:library/stuff:pull"'
         )
     }
-    responses.add(
-        responses.GET, "https://fakereg.com/api/stuff", headers=headers, status=401
-    )
+    responses.add(responses.GET, "https://fakereg.com/api/stuff", headers=headers, status=401)
     responses.add(responses.GET, "https://fakereg.com/api/stuff")
 
     # try it, isolating the re-authentication (tested separatedly above)
@@ -279,14 +271,11 @@ def test_hit_simple_re_auth_problems(responses):
 
     # set only one response, a 401 which is broken and all will end there
     headers = {"Www-Authenticate": "broken header"}
-    responses.add(
-        responses.GET, "https://fakereg.com/api/stuff", headers=headers, status=401
-    )
+    responses.add(responses.GET, "https://fakereg.com/api/stuff", headers=headers, status=401)
 
     # try it, isolating the re-authentication (tested separatedly above)
     expected = (
-        "Bad 401 response: Bearer not found; "
-        "headers: {.*'Www-Authenticate': 'broken header'.*}"
+        "Bad 401 response: Bearer not found; " "headers: {.*'Www-Authenticate': 'broken header'.*}"
     )
     with pytest.raises(CommandError, match=expected):
         ocireg._hit("GET", "https://fakereg.com/api/stuff")
@@ -316,9 +305,7 @@ def test_hit_including_headers(responses):
     responses.add(responses.POST, "https://fakereg.com/api/stuff")
 
     # try it
-    response = ocireg._hit(
-        "POST", "https://fakereg.com/api/stuff", headers={"FOO": "bar"}
-    )
+    response = ocireg._hit("POST", "https://fakereg.com/api/stuff", headers={"FOO": "bar"})
     assert response == responses.calls[0].response
 
     # check that it sent the requested header AND the automatic auth one
@@ -485,15 +472,9 @@ def test_ociregistry_upload_blob_complete(tmp_path, caplog, responses, monkeypat
     pump_url_2 = base_url + "fakeurl-2"
     pump_url_3 = base_url + "fakeurl-3"
     pump_url_4 = base_url + "fakeurl-4"
-    responses.add(
-        responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2}
-    )
-    responses.add(
-        responses.PATCH, pump_url_2, status=202, headers={"Location": pump_url_3}
-    )
-    responses.add(
-        responses.PATCH, pump_url_3, status=202, headers={"Location": pump_url_4}
-    )
+    responses.add(responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2})
+    responses.add(responses.PATCH, pump_url_2, status=202, headers={"Location": pump_url_3})
+    responses.add(responses.PATCH, pump_url_3, status=202, headers={"Location": pump_url_4})
 
     # finally, the closing url
     responses.add(
@@ -597,9 +578,7 @@ def test_ociregistry_upload_blob_resumed(tmp_path, caplog, responses):
 
     # and the intermediate one
     pump_url_2 = base_url + "fakeurl-2"
-    responses.add(
-        responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2}
-    )
+    responses.add(responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2})
 
     # finally, the closing url
     responses.add(
@@ -658,9 +637,7 @@ def test_ociregistry_upload_blob_bad_response_middle(tmp_path, responses, monkey
 
     # and the intermediate ones, chained, with a crash
     pump_url_2 = base_url + "fakeurl-2"
-    responses.add(
-        responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2}
-    )
+    responses.add(responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2})
     responses.add(responses.PATCH, pump_url_2, status=504)
 
     # prepare a fake content that will be pushed in 3 parts
@@ -690,9 +667,7 @@ def test_ociregistry_upload_blob_bad_response_closing(tmp_path, responses):
 
     # and the intermediate one
     pump_url_2 = base_url + "fakeurl-2"
-    responses.add(
-        responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2}
-    )
+    responses.add(responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2})
 
     # finally, the closing url, crashing
     responses.add(responses.PUT, base_url + "fakeurl-2&digest=test-digest", status=502)
@@ -723,9 +698,7 @@ def test_ociregistry_upload_blob_bad_final_digest(tmp_path, responses):
 
     # and the intermediate one
     pump_url_2 = base_url + "fakeurl-2"
-    responses.add(
-        responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2}
-    )
+    responses.add(responses.PATCH, pump_url_1, status=202, headers={"Location": pump_url_2})
 
     # finally, the closing url, bad digest
     responses.add(
@@ -950,9 +923,7 @@ def test_imagehandler_extract_file_compressed_ok(tmp_path, caplog):
 
     im = ImageHandler("registry")
     with tarfile.open(tar_filepath, "r") as tar:
-        tmp_filepath, size, digest = im._extract_file(
-            tar, "testfile.txt", compress=True
-        )
+        tmp_filepath, size, digest = im._extract_file(tar, "testfile.txt", compress=True)
 
     compressed_content = open(tmp_filepath, "rb").read()
     assert size == len(compressed_content)
@@ -1028,9 +999,7 @@ def test_imagehandler_uploadblob_duplicated(caplog, tmp_path):
     assert expected == [rec.message for rec in caplog.records]
 
 
-def test_imagehandler_uploadfromlocal_complete(
-    caplog, tmp_path, responses, monkeypatch
-):
+def test_imagehandler_uploadfromlocal_complete(caplog, tmp_path, responses, monkeypatch):
     """Complete process of uploading a local image."""
     caplog.set_level(logging.DEBUG, logger="charmcraft")
 
@@ -1132,17 +1101,11 @@ def test_imagehandler_uploadfromlocal_complete(
         "Checking image is present locally",
         "Getting the image from the local repo; size={}".format(image_size),
         "Extracting file 'config.yaml' from local tar (compress=False)",
-        "Uploading config blob, size={}, digest={}".format(
-            u_config_size, u_config_digest
-        ),
+        "Uploading config blob, size={}, digest={}".format(u_config_size, u_config_digest),
         "Extracting file 'layer1.bin' from local tar (compress=True)",
-        "Uploading layer blob 1/2, size={}, digest={}".format(
-            u_layer1_size, u_layer1_digest
-        ),
+        "Uploading layer blob 1/2, size={}, digest={}".format(u_layer1_size, u_layer1_digest),
         "Extracting file 'layer2.bin' from local tar (compress=True)",
-        "Uploading layer blob 2/2, size={}, digest={}".format(
-            u_layer2_size, u_layer2_digest
-        ),
+        "Uploading layer blob 2/2, size={}, digest={}".format(u_layer2_size, u_layer2_digest),
     ]
     assert expected == [rec.message for rec in caplog.records]
 
@@ -1238,8 +1201,6 @@ def test_imagehandler_uploadfromlocal_no_config(caplog, tmp_path, monkeypatch):
         "Checking image is present locally",
         "Getting the image from the local repo; size={}".format(image_size),
         "Extracting file 'layer.bin' from local tar (compress=True)",
-        "Uploading layer blob 1/1, size={}, digest={}".format(
-            u_layer_size, u_layer_digest
-        ),
+        "Uploading layer blob 1/1, size={}, digest={}".format(u_layer_size, u_layer_digest),
     ]
     assert expected == [rec.message for rec in caplog.records]

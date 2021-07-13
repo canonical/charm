@@ -45,9 +45,7 @@ from charmcraft.utils import OSPlatform
 def test_useragent_linux(monkeypatch):
     """Construct a user-agent as a patched Linux machine"""
     monkeypatch.setenv("TRAVIS_TESTING", "1")
-    os_platform = OSPlatform(
-        system="Arch Linux", release="5.10.10-arch1-1", machine="x86_64"
-    )
+    os_platform = OSPlatform(system="Arch Linux", release="5.10.10-arch1-1", machine="x86_64")
     with patch("charmcraft.commands.store.client.__version__", "1.2.3"), patch(
         "charmcraft.utils.get_os_platform", return_value=os_platform
     ), patch("platform.system", return_value="Linux"), patch(
@@ -56,10 +54,7 @@ def test_useragent_linux(monkeypatch):
         "platform.python_version", return_value="3.9.1"
     ):
         ua = build_user_agent()
-    assert (
-        ua
-        == "charmcraft/1.2.3 (testing) Arch Linux/5.10.10-arch1-1 (x86_64) python/3.9.1"
-    )
+    assert ua == "charmcraft/1.2.3 (testing) Arch Linux/5.10.10-arch1-1 (x86_64) python/3.9.1"
 
 
 def test_useragent_windows(monkeypatch):
@@ -140,9 +135,7 @@ def test_authholder_clear_credentials_ok(auth_holder, caplog):
     auth_holder.clear_credentials()
 
     assert not os.path.exists(auth_holder._cookiejar_filepath)
-    expected = "Credentials cleared: file {!r} removed".format(
-        auth_holder._cookiejar_filepath
-    )
+    expected = "Credentials cleared: file {!r} removed".format(auth_holder._cookiejar_filepath)
     assert [expected] == [rec.message for rec in caplog.records]
 
 
@@ -172,9 +165,7 @@ def test_authholder_credentials_load_file_present_ok(auth_holder):
     # check credentials
     loaded_cookies = list(auth_holder._cookiejar)
     assert len(loaded_cookies) == 1
-    assert (
-        loaded_cookies[0].value == fake_cookie.value
-    )  # compare the value as no __eq__ in Cookie
+    assert loaded_cookies[0].value == fake_cookie.value  # compare the value as no __eq__ in Cookie
     assert isinstance(auth_holder._cookiejar, MozillaCookieJar)
     assert auth_holder._old_cookies == list(auth_holder._cookiejar)
 
@@ -205,9 +196,7 @@ def test_authholder_credentials_load_file_missing(auth_holder, caplog):
 
     auth_holder._load_credentials()
 
-    expected = "Credentials file not found: {!r}".format(
-        auth_holder._cookiejar_filepath
-    )
+    expected = "Credentials file not found: {!r}".format(auth_holder._cookiejar_filepath)
     assert [expected] == [rec.message for rec in caplog.records]
     assert auth_holder._old_cookies == []
 
@@ -334,9 +323,7 @@ def test_authholder_request_interaction_error(auth_holder):
 
     with patch("macaroonbakery.httpbakery.Client.request") as mock:
         mock.side_effect = httpbakery.InteractionError("bad auth!!")
-        expected = (
-            "Authentication failure: cannot start interactive session: bad auth!!"
-        )
+        expected = "Authentication failure: cannot start interactive session: bad auth!!"
         with pytest.raises(CommandError, match=expected):
             auth_holder.request("testmethod", "testurl", "testbody")
 
@@ -376,9 +363,7 @@ def test_client_post():
         client = Client("http://api.test", "http://storage.test")
     client.post("/somepath", "somebody")
 
-    mock_auth().request.assert_called_once_with(
-        "POST", "http://api.test/somepath", "somebody"
-    )
+    mock_auth().request.assert_called_once_with("POST", "http://api.test/somepath", "somebody")
 
 
 def test_client_hit_success_simple(caplog):
@@ -419,9 +404,7 @@ def test_client_hit_url_extra_slash():
     with patch("charmcraft.commands.store.client._AuthHolder") as mock_auth:
         client = Client("https://local.test:1234/", "http://storage.test")
     client._hit("GET", "/somepath")
-    mock_auth().request.assert_called_once_with(
-        "GET", "https://local.test:1234/somepath", None
-    )
+    mock_auth().request.assert_called_once_with("GET", "https://local.test:1234/somepath", None)
 
 
 def test_client_hit_success_withbody(caplog):
@@ -435,9 +418,7 @@ def test_client_hit_success_withbody(caplog):
         client = Client("http://api.test", "http://storage.test")
     result = client._hit("POST", "/somepath", "somebody")
 
-    mock_auth().request.assert_called_once_with(
-        "POST", "http://api.test/somepath", "somebody"
-    )
+    mock_auth().request.assert_called_once_with("POST", "http://api.test/somepath", "somebody")
     assert result == response_value
     expected = [
         "Hitting the store: POST http://api.test/somepath somebody",
@@ -469,13 +450,9 @@ def test_client_clear_credentials():
 
 def test_client_errorparsing_complete():
     """Build the error message using original message and code."""
-    content = json.dumps(
-        {"error-list": [{"message": "error message", "code": "test-error"}]}
-    )
+    content = json.dumps({"error-list": [{"message": "error message", "code": "test-error"}]})
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Store failure! error message [code: test-error]"
 
 
@@ -483,9 +460,7 @@ def test_client_errorparsing_no_code():
     """Build the error message using original message (even when code in None)."""
     content = json.dumps({"error-list": [{"message": "error message", "code": None}]})
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Store failure! error message"
 
 
@@ -500,18 +475,14 @@ def test_client_errorparsing_multiple():
         }
     )
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Store failure! error 1 [code: test-error-1]; error 2"
 
 
 def test_client_errorparsing_nojson():
     """Produce a default message if response is not a json."""
     response = FakeResponse(content="this is not a json", status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Failure working with the Store: [404] 'this is not a json'"
 
 
@@ -519,9 +490,7 @@ def test_client_errorparsing_no_errors_inside():
     """Produce a default message if response has no errors list."""
     content = json.dumps({"another-error-key": "stuff"})
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Failure working with the Store: [404] " + repr(content)
 
 
@@ -529,9 +498,7 @@ def test_client_errorparsing_empty_errors():
     """Produce a default message if error list is empty."""
     content = json.dumps({"error-list": []})
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Failure working with the Store: [404] " + repr(content)
 
 
@@ -539,9 +506,7 @@ def test_client_errorparsing_bad_structure():
     """Produce a default message if error list has a bad format."""
     content = json.dumps({"error-list": ["whatever"]})
     response = FakeResponse(content=content, status_code=404)
-    result = Client("http://api.test", "http://storage.test")._parse_store_error(
-        response
-    )
+    result = Client("http://api.test", "http://storage.test")._parse_store_error(response)
     assert result == "Failure working with the Store: [404] " + repr(content)
 
 
@@ -558,9 +523,7 @@ def test_client_push_simple_ok(caplog, tmp_path, capsys):
         """Push bytes in sequence, doing verifications in the middle."""
         assert storage_base_url == "http://storage.test"
 
-        total_to_push = (
-            monitor.len
-        )  # not only the saved bytes, but also headers and stuff
+        total_to_push = monitor.len  # not only the saved bytes, but also headers and stuff
 
         # one batch
         monitor.read(20)
@@ -648,23 +611,17 @@ def test_client_push_response_unsuccessful(tmp_path):
 
     with patch("charmcraft.commands.store.client._storage_push") as mock:
         raw_content = dict(successful=False, upload_id=None)
-        mock.return_value = FakeResponse(
-            content=json.dumps(raw_content), status_code=200
-        )
+        mock.return_value = FakeResponse(content=json.dumps(raw_content), status_code=200)
         with pytest.raises(CommandError) as cm:
             Client("http://api.test", "http://storage.test").push(test_filepath)
-        expected = (
-            "Server error while pushing file: {'successful': False, 'upload_id': None}"
-        )
+        expected = "Server error while pushing file: {'successful': False, 'upload_id': None}"
         assert str(cm.value) == expected
 
 
 def test_storage_push_succesful():
     """Bytes are properly pushed to the Storage."""
     test_monitor = MultipartEncoderMonitor(
-        MultipartEncoder(
-            fields={"binary": ("filename", "somefile", "application/octet-stream")}
-        )
+        MultipartEncoder(fields={"binary": ("filename", "somefile", "application/octet-stream")})
     )
 
     with patch("requests.Session") as mock:
@@ -678,9 +635,7 @@ def test_storage_push_succesful():
         "Accept": "application/json",
         "User-Agent": build_user_agent(),
     }
-    cm_session_mock.post.assert_called_once_with(
-        url, headers=headers, data=test_monitor
-    )
+    cm_session_mock.post.assert_called_once_with(url, headers=headers, data=test_monitor)
 
     # check the retries were properly setup
     (protocol, adapter), _ = cm_session_mock.mount.call_args
@@ -694,9 +649,7 @@ def test_storage_push_succesful():
 def test_storage_push_network_error():
     """A generic network error happened."""
     test_monitor = MultipartEncoderMonitor(
-        MultipartEncoder(
-            fields={"binary": ("filename", "somefile", "application/octet-stream")}
-        )
+        MultipartEncoder(fields={"binary": ("filename", "somefile", "application/octet-stream")})
     )
 
     with patch("requests.Session.post") as mock:

@@ -501,9 +501,7 @@ def test_charmhub_underscore_backwards_compatibility(create_config, tmp_path, ca
     assert cfg.charmhub.storage_url == "https://server1.com"
     assert cfg.charmhub.api_url == "https://server2.com"
     assert cfg.charmhub.registry_url == "https://server3.com"
-    deprecation_msg = (
-        "DEPRECATED: Configuration keywords are now separated using dashes."
-    )
+    deprecation_msg = "DEPRECATED: Configuration keywords are now separated using dashes."
     assert deprecation_msg in [rec.message for rec in caplog.records]
 
 

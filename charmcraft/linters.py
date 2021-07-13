@@ -120,9 +120,7 @@ class Framework:
     def text(self):
         """Return a text in function of the result state."""
         if self.result is None:
-            raise RuntimeError(
-                "Cannot access text before running the Framework checker."
-            )
+            raise RuntimeError("Cannot access text before running the Framework checker.")
         return self.result_texts[self.result]
 
     def _get_imports(self, filepath: pathlib.Path) -> Generator[List[str], None, None]:
@@ -172,9 +170,7 @@ class Framework:
         wheelhouse_dir = basedir / "wheelhouse"
         if not wheelhouse_dir.exists():
             return False
-        if not any(
-            f.name.startswith("charms.reactive-") for f in wheelhouse_dir.iterdir()
-        ):
+        if not any(f.name.startswith("charms.reactive-") for f in wheelhouse_dir.iterdir()):
             return False
 
         entrypoint = basedir / "reactive" / f"{entrypoint_name}.py"

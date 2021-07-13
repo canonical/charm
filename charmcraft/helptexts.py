@@ -72,9 +72,7 @@ def _build_item(title, text, title_space):
     wrapped_lines = textwrap.wrap(text, text_space)
 
     # first line goes with the title at column 4
-    first = "    {:>{title_space}s}:  {}".format(
-        title, wrapped_lines[0], title_space=title_space
-    )
+    first = "    {:>{title_space}s}:  {}".format(title, wrapped_lines[0], title_space=title_space)
     result = [first]
 
     # the rest (if any) still aligned but without title
@@ -272,9 +270,7 @@ def get_command_help(command_groups, command, arguments):
             break
     else:
         raise RuntimeError("Internal inconsistency in commands groups")
-    other_command_names = [
-        c.name for c in command_classes if not isinstance(command, c)
-    ]
+    other_command_names = [c.name for c in command_classes if not isinstance(command, c)]
     if other_command_names:
         see_also_block = ["See also:"]
         see_also_block.extend(("    " + name) for name in sorted(other_command_names))

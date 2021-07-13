@@ -83,11 +83,7 @@ def pep257_test(python_filepaths):
     errors = list(pydocstyle.check(python_filepaths, select=to_include))
 
     if errors:
-        report = [
-            "Please fix files as suggested by pydocstyle ({:d} issues):".format(
-                len(errors)
-            )
-        ]
+        report = ["Please fix files as suggested by pydocstyle ({:d} issues):".format(len(errors))]
         report.extend(str(e) for e in errors)
         msg = "\n".join(report)
         pytest.fail(msg, pytrace=False)
@@ -108,9 +104,7 @@ def test_ensure_copyright():
             else:
                 issues.append(filepath)
     if issues:
-        msg = "Please add copyright headers to the following files:\n" + "\n".join(
-            issues
-        )
+        msg = "Please add copyright headers to the following files:\n" + "\n".join(issues)
         pytest.fail(msg, pytrace=False)
 
 

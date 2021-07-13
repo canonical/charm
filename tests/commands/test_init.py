@@ -51,9 +51,7 @@ def test_init_non_ascii_author(tmp_path, config):
 
 def test_all_the_files(tmp_path, config):
     cmd = InitCommand("group", config)
-    cmd.run(
-        Namespace(name="my-charm", author="ಅಪರಿಚಿತ ವ್ಯಕ್ತಿ", series="k8s", force=False)
-    )
+    cmd.run(Namespace(name="my-charm", author="ಅಪರಿಚಿತ ವ್ಯಕ್ತಿ", series="k8s", force=False))
     assert sorted(str(p.relative_to(tmp_path)) for p in tmp_path.glob("**/*")) == [
         ".flake8",
         ".gitignore",
@@ -81,9 +79,7 @@ def test_force(tmp_path, config):
     tmp_file = tmp_path / "README.md"
     with tmp_file.open("w") as f:
         f.write("This is a nonsense readme")
-    cmd.run(
-        Namespace(name="my-charm", author="ಅಪರಿಚಿತ ವ್ಯಕ್ತಿ", series="k8s", force=True)
-    )
+    cmd.run(Namespace(name="my-charm", author="ಅಪರಿಚಿತ ವ್ಯಕ್ತಿ", series="k8s", force=True))
 
     # Check that init ran
     assert (tmp_path / "LICENSE").exists()
@@ -133,9 +129,7 @@ def test_gecos_missing_in_getpwuid_response(config):
 
     with patch("pwd.getpwuid") as mock_pwd:
         # return a fack passwd struct with an empty gecos (5th parameter)
-        mock_pwd.return_value = pwd.struct_passwd(
-            ("user", "pass", 1, 1, "", "dir", "shell")
-        )
+        mock_pwd.return_value = pwd.struct_passwd(("user", "pass", 1, 1, "", "dir", "shell"))
         msg = "Author not given, and nothing in GECOS field"
         with pytest.raises(CommandError, match=msg):
             cmd.run(Namespace(name="my-charm", author=None, series="k8s", force=False))

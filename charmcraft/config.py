@@ -103,14 +103,10 @@ class RelativePath(CustomStrictStr):
         config is independent of the platform where charmcraft is running.
         """
         if not value:
-            raise ValueError(
-                f"{value!r} must be a valid relative path (cannot be empty)"
-            )
+            raise ValueError(f"{value!r} must be a valid relative path (cannot be empty)")
 
         if value[0] == "/":
-            raise ValueError(
-                f"{value!r} must be a valid relative path (cannot start with '/')"
-            )
+            raise ValueError(f"{value!r} must be a valid relative path (cannot start with '/')")
 
         return value
 
@@ -226,9 +222,7 @@ def format_pydantic_errors(errors, *, file_name: str = "charmcraft.yaml"):
 
         if formatted_msg == "field required":
             field_name, location = printable_field_location_split(formatted_loc)
-            combined.append(
-                f"- field {field_name} required in {location} configuration"
-            )
+            combined.append(f"- field {field_name} required in {location} configuration")
         elif formatted_msg == "extra fields not permitted":
             field_name, location = printable_field_location_split(formatted_loc)
             combined.append(
@@ -352,12 +346,7 @@ class Config(ModelConfigDefaults, validate_all=False):
             # Skip if already long-form. Account for common typos in case user
             # intends to use long-form, but did so incorrectly (for better
             # error message handling).
-            if (
-                "run-on" in base
-                or "run_on" in base
-                or "build-on" in base
-                or "build_on" in base
-            ):
+            if "run-on" in base or "run_on" in base or "build-on" in base or "build_on" in base:
                 continue
 
             try:

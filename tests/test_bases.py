@@ -26,12 +26,8 @@ from charmcraft.utils import OSPlatform
 
 @pytest.fixture
 def mock_get_os_platform():
-    os_platform = OSPlatform(
-        system="host-OS", release="host-CHANNEL", machine="host-ARCH"
-    )
-    with patch(
-        "charmcraft.bases.get_os_platform", return_value=os_platform
-    ) as mock_platform:
+    os_platform = OSPlatform(system="host-OS", release="host-CHANNEL", machine="host-ARCH")
+    with patch("charmcraft.bases.get_os_platform", return_value=os_platform) as mock_platform:
         yield mock_platform
 
 
@@ -51,9 +47,7 @@ def test_get_host_as_base(mock_get_os_platform, mock_get_host_architecture):
     )
 
 
-def test_check_if_bases_matches_host_matches(
-    mock_get_os_platform, mock_get_host_architecture
-):
+def test_check_if_bases_matches_host_matches(mock_get_os_platform, mock_get_host_architecture):
     base = Base(name="host-os", channel="host-CHANNEL", architectures=["host-ARCH"])
     assert check_if_base_matches_host(base) == (True, None)
 
@@ -68,9 +62,7 @@ def test_check_if_bases_matches_host_matches(
 def test_check_if_bases_matches_host_name_mismatch(
     mock_get_os_platform, mock_get_host_architecture
 ):
-    base = Base(
-        name="test-other-os", channel="host-CHANNEL", architectures=["host-ARCH"]
-    )
+    base = Base(name="test-other-os", channel="host-CHANNEL", architectures=["host-ARCH"])
 
     assert check_if_base_matches_host(base) == (
         False,

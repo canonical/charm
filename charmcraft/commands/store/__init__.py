@@ -46,9 +46,7 @@ logger = logging.getLogger("charmcraft.commands.store")
 
 # some types
 EntityType = namedtuple("EntityType", "charm bundle")(charm="charm", bundle="bundle")
-ResourceType = namedtuple("ResourceType", "file oci_image")(
-    file="file", oci_image="oci-image"
-)
+ResourceType = namedtuple("ResourceType", "file oci_image")(file="file", oci_image="oci-image")
 
 LibData = namedtuple(
     "LibData",
@@ -198,9 +196,7 @@ class RegisterCharmNameCommand(BaseCommand):
         """Run the command."""
         store = Store(self.config.charmhub)
         store.register_name(parsed_args.name, EntityType.charm)
-        logger.info(
-            "You are now the publisher of charm %r in Charmhub.", parsed_args.name
-        )
+        logger.info("You are now the publisher of charm %r in Charmhub.", parsed_args.name)
 
 
 class RegisterBundleNameCommand(BaseCommand):
@@ -239,9 +235,7 @@ class RegisterBundleNameCommand(BaseCommand):
         """Run the command."""
         store = Store(self.config.charmhub)
         store.register_name(parsed_args.name, EntityType.bundle)
-        logger.info(
-            "You are now the publisher of bundle %r in Charmhub.", parsed_args.name
-        )
+        logger.info("You are now the publisher of bundle %r in Charmhub.", parsed_args.name)
 
 
 class ListNamesCommand(BaseCommand):
@@ -350,9 +344,7 @@ class UploadCommand(BaseCommand):
 
     def fill_parser(self, parser):
         """Add own parameters to the general parser."""
-        parser.add_argument(
-            "filepath", type=useful_filepath, help="The charm or bundle to upload"
-        )
+        parser.add_argument("filepath", type=useful_filepath, help="The charm or bundle to upload")
         parser.add_argument(
             "--release",
             action="append",
@@ -544,9 +536,7 @@ class ReleaseCommand(BaseCommand):
         if parsed_args.resource:
             msg += " (attaching resources: %s)"
             args.append(
-                ", ".join(
-                    "{!r} r{}".format(r.name, r.revision) for r in parsed_args.resource
-                )
+                ", ".join("{!r} r{}".format(r.name, r.revision) for r in parsed_args.resource)
             )
         logger.info(msg, *args)
 
@@ -614,9 +604,7 @@ class StatusCommand(BaseCommand):
         per_track = {}
         branch_present = False
         for channel in channels:
-            nonbranches_list, branches_list = per_track.setdefault(
-                channel.track, ([], [])
-            )
+            nonbranches_list, branches_list = per_track.setdefault(channel.track, ([], []))
             if channel.branch is None:
                 # insert branch right after its fallback
                 for idx, stored in enumerate(nonbranches_list, 1):
@@ -709,9 +697,7 @@ class _BadLibraryNameError(CommandError):
 
     def __init__(self, name):
         super().__init__(
-            "Charm library name {!r} must conform to charms.<charm>.vN.<libname>".format(
-                name
-            )
+            "Charm library name {!r} must conform to charms.<charm>.vN.<libname>".format(name)
         )
 
 
@@ -804,9 +790,7 @@ def _get_lib_info(*, full_name=None, lib_path=None):
             )
         )
 
-    bad_api_patch_msg = (
-        "Library {!r} metadata field {} is not zero or a positive integer."
-    )
+    bad_api_patch_msg = "Library {!r} metadata field {} is not zero or a positive integer."
     try:
         libapi = _get_positive_int(metadata[b"LIBAPI"])
     except ValueError:
@@ -830,9 +814,7 @@ def _get_lib_info(*, full_name=None, lib_path=None):
             )
         )
 
-    bad_libid_msg = (
-        "Library {!r} metadata field LIBID must be a non-empty ASCII string."
-    )
+    bad_libid_msg = "Library {!r} metadata field LIBID must be a non-empty ASCII string."
     try:
         libid = ast.literal_eval(metadata[b"LIBID"].decode("ascii"))
     except (ValueError, UnicodeDecodeError):
@@ -922,11 +904,7 @@ class CreateLibCommand(BaseCommand):
         lib_name = parsed_args.name
         valid_all_chars = set(string.ascii_lowercase + string.digits + "_")
         valid_first_char = string.ascii_lowercase
-        if (
-            set(lib_name) - valid_all_chars
-            or not lib_name
-            or lib_name[0] not in valid_first_char
-        ):
+        if set(lib_name) - valid_all_chars or not lib_name or lib_name[0] not in valid_first_char:
             raise CommandError(
                 "Invalid library name. Must only use lowercase alphanumeric "
                 "characters and underscore, starting with alpha."
@@ -948,9 +926,7 @@ class CreateLibCommand(BaseCommand):
         lib_data = _get_lib_info(full_name=full_name)
         lib_path = lib_data.path
         if lib_path.exists():
-            raise CommandError(
-                "This library already exists: {!r}.".format(str(lib_path))
-            )
+            raise CommandError("This library already exists: {!r}.".format(str(lib_path)))
 
         store = Store(self.config.charmhub)
         lib_id = store.create_library_id(charm_name, lib_name)
@@ -1009,9 +985,7 @@ class PublishLibCommand(BaseCommand):
             lib_data = _get_lib_info(full_name=parsed_args.library)
             if not lib_data.path.exists():
                 raise CommandError(
-                    "The specified library was not found at path {!r}.".format(
-                        str(lib_data.path)
-                    )
+                    "The specified library was not found at path {!r}.".format(str(lib_data.path))
                 )
             if lib_data.charm_name != charm_name:
                 raise CommandError(
@@ -1049,9 +1023,7 @@ class PublishLibCommand(BaseCommand):
             elif tip.patch == lib_data.patch:
                 # the store has same version numbers than local
                 if tip.content_hash == lib_data.content_hash:
-                    logger.info(
-                        "Library %s is already updated in Charmhub.", lib_data.full_name
-                    )
+                    logger.info("Library %s is already updated in Charmhub.", lib_data.full_name)
                 else:
                     # but shouldn't as hash is different!
                     logger.info(
@@ -1148,10 +1120,7 @@ class FetchLibCommand(BaseCommand):
             # fix any missing lib id using the Store info
             if lib_data.lib_id is None:
                 for tip in libs_tips.values():
-                    if (
-                        lib_data.charm_name == tip.charm_name
-                        and lib_data.lib_name == tip.lib_name
-                    ):
+                    if lib_data.charm_name == tip.charm_name and lib_data.lib_name == tip.lib_name:
                         lib_data = lib_data._replace(lib_id=tip.lib_id)
                         break
 
@@ -1186,9 +1155,7 @@ class FetchLibCommand(BaseCommand):
                     )
 
         for lib_data in to_fetch:
-            downloaded = store.get_library(
-                lib_data.charm_name, lib_data.lib_id, lib_data.api
-            )
+            downloaded = store.get_library(lib_data.charm_name, lib_data.lib_id, lib_data.api)
             if lib_data.content is None:
                 # locally new
                 lib_data.path.parent.mkdir(parents=True, exist_ok=True)
@@ -1259,9 +1226,7 @@ class ListLibCommand(BaseCommand):
             return
 
         headers = ["Library name", "API", "Patch"]
-        data = sorted(
-            (item.lib_name, item.api, item.patch) for item in libs_tips.values()
-        )
+        data = sorted((item.lib_name, item.api, item.patch) for item in libs_tips.values())
 
         table = tabulate(data, headers=headers, tablefmt="plain", numalign="left")
         for line in table.splitlines():
@@ -1284,9 +1249,7 @@ class ListResourcesCommand(BaseCommand):
 
     def fill_parser(self, parser):
         """Add own parameters to the general parser."""
-        parser.add_argument(
-            "charm_name", metavar="charm-name", help="The name of the charm"
-        )
+        parser.add_argument("charm_name", metavar="charm-name", help="The name of the charm")
 
     def run(self, parsed_args):
         """Run the command."""
@@ -1303,12 +1266,8 @@ class ListResourcesCommand(BaseCommand):
         data = []
         for revision, items in sorted(by_revision.items(), reverse=True):
             initial, *rest = sorted(items, key=attrgetter("name"))
-            data.append(
-                (revision, initial.name, initial.resource_type, initial.optional)
-            )
-            data.extend(
-                ("", item.name, item.resource_type, item.optional) for item in rest
-            )
+            data.append((revision, initial.name, initial.resource_type, initial.optional))
+            data.extend(("", item.name, item.resource_type, item.optional) for item in rest)
 
         table = tabulate(data, headers=headers, tablefmt="plain", numalign="left")
         for line in table.splitlines():
@@ -1346,9 +1305,7 @@ class UploadResourceCommand(BaseCommand):
             metavar="charm-name",
             help="The charm name to associate the resource",
         )
-        parser.add_argument(
-            "resource_name", metavar="resource-name", help="The resource name"
-        )
+        parser.add_argument("resource_name", metavar="resource-name", help="The resource name")
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument(
             "--filepath",
@@ -1369,9 +1326,7 @@ class UploadResourceCommand(BaseCommand):
             resource_filepath = parsed_args.filepath
             resource_filepath_is_temp = False
             resource_type = ResourceType.file
-            logger.debug(
-                "Uploading resource directly from file %r.", str(resource_filepath)
-            )
+            logger.debug("Uploading resource directly from file %r.", str(resource_filepath))
         elif parsed_args.image:
             image_digest = parsed_args.image
             credentials = store.get_oci_registry_credentials(
@@ -1382,9 +1337,7 @@ class UploadResourceCommand(BaseCommand):
             # 'registry.jujucharms.com/charm/45kk8smbiyn2e/redis-image') to the image
             # name that we use internally (just remove the initial "server host" part)
             image_name = credentials.image_name.split("/", 1)[1]
-            logger.debug(
-                "Uploading resource from image %s @ %s.", image_name, image_digest
-            )
+            logger.debug("Uploading resource from image %s @ %s.", image_name, image_digest)
 
             # build the image handler
             registry = OCIRegistry(
@@ -1472,16 +1425,12 @@ class ListResourceRevisionsCommand(BaseCommand):
             metavar="charm-name",
             help="The charm name to associate the resource",
         )
-        parser.add_argument(
-            "resource_name", metavar="resource-name", help="The resource name"
-        )
+        parser.add_argument("resource_name", metavar="resource-name", help="The resource name")
 
     def run(self, parsed_args):
         """Run the command."""
         store = Store(self.config.charmhub)
-        result = store.list_resource_revisions(
-            parsed_args.charm_name, parsed_args.resource_name
-        )
+        result = store.list_resource_revisions(parsed_args.charm_name, parsed_args.resource_name)
         if not result:
             logger.info("No revisions found.")
             return
@@ -1498,8 +1447,6 @@ class ListResourceRevisionsCommand(BaseCommand):
             for item in result
         ]
 
-        table = tabulate(
-            data, headers=headers, tablefmt="plain", colalign=custom_alignment
-        )
+        table = tabulate(data, headers=headers, tablefmt="plain", colalign=custom_alignment)
         for line in table.splitlines():
             logger.info(line)

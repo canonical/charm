@@ -44,11 +44,7 @@ TESTING_ENV_PREFIXES = ["TRAVIS", "AUTOPKGTEST_TMP"]
 
 def build_user_agent():
     """Build the charmcraft's user agent."""
-    if any(
-        key.startswith(prefix)
-        for prefix in TESTING_ENV_PREFIXES
-        for key in os.environ.keys()
-    ):
+    if any(key.startswith(prefix) for prefix in TESTING_ENV_PREFIXES for key in os.environ.keys()):
         testing = " (testing) "
     else:
         testing = " "
@@ -87,9 +83,7 @@ class _AuthHolder:
         """Clear stored credentials."""
         if os.path.exists(self._cookiejar_filepath):
             os.unlink(self._cookiejar_filepath)
-            logger.debug(
-                "Credentials cleared: file %r removed", str(self._cookiejar_filepath)
-            )
+            logger.debug("Credentials cleared: file %r removed", str(self._cookiejar_filepath))
         else:
             logger.debug(
                 "Credentials file not found to be removed: %r",
@@ -99,15 +93,11 @@ class _AuthHolder:
     def _save_credentials_if_changed(self):
         """Save credentials if changed."""
         if list(self._cookiejar) != self._old_cookies:
-            logger.debug(
-                "Saving credentials to file: %r", str(self._cookiejar_filepath)
-            )
+            logger.debug("Saving credentials to file: %r", str(self._cookiejar_filepath))
             dirpath = os.path.dirname(self._cookiejar_filepath)
             os.makedirs(dirpath, exist_ok=True)
 
-            fd = os.open(
-                self._cookiejar_filepath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600
-            )
+            fd = os.open(self._cookiejar_filepath, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             os.fchmod(fd, 0o600)
             self._cookiejar.save(fd)
 
@@ -115,14 +105,10 @@ class _AuthHolder:
         """Load credentials and set up internal auth request objects."""
         wbi = httpbakery.WebBrowserInteractor(open=visit_page_with_browser)
         self._cookiejar = MozillaCookieJar(self._cookiejar_filepath)
-        self._client = httpbakery.Client(
-            cookies=self._cookiejar, interaction_methods=[wbi]
-        )
+        self._client = httpbakery.Client(cookies=self._cookiejar, interaction_methods=[wbi])
 
         if os.path.exists(self._cookiejar_filepath):
-            logger.debug(
-                "Loading credentials from file: %r", str(self._cookiejar_filepath)
-            )
+            logger.debug("Loading credentials from file: %r", str(self._cookiejar_filepath))
             try:
                 self._cookiejar.load()
             except Exception as err:
@@ -130,9 +116,7 @@ class _AuthHolder:
                 # will be asked to authenticate)
                 logger.warning("Failed to read credentials: %r", err)
         else:
-            logger.debug(
-                "Credentials file not found: %r", str(self._cookiejar_filepath)
-            )
+            logger.debug("Credentials file not found: %r", str(self._cookiejar_filepath))
 
         # iterates the cookiejar (which is mutable, may change later) and get the cookies
         # for comparison after hitting the endpoint
@@ -206,9 +190,7 @@ class Client:
             return default_msg
 
         try:
-            error_info = [
-                (error["message"], error["code"]) for error in error_data["error-list"]
-            ]
+            error_info = [(error["message"], error["code"]) for error in error_data["error-list"]]
         except (KeyError, TypeError):
             return default_msg
 

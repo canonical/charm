@@ -168,9 +168,7 @@ def test_framework_operator_used_ok(tmp_path, monkeypatch, import_line):
     opsdir.mkdir(parents=True)
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": entrypoint}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": entrypoint})
 
     # check
     result = Framework()._check_operator(tmp_path)
@@ -202,9 +200,7 @@ def test_framework_operator_venv_directory_missing(tmp_path, monkeypatch):
     entrypoint.write_text("import ops")
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": "whatever"}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": "whatever"})
 
     # check
     result = Framework()._check_operator(tmp_path)
@@ -218,9 +214,7 @@ def test_framework_operator_no_venv_ops_directory(tmp_path, monkeypatch):
     entrypoint.write_text("import ops")
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": "whatever"}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": "whatever"})
 
     # an empty venv
     venvdir = tmp_path / "venv"
@@ -238,9 +232,7 @@ def test_framework_operator_venv_ops_directory_is_not_a_dir(tmp_path, monkeypatc
     entrypoint.write_text("import ops")
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": "whatever"}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": "whatever"})
 
     # an ops *file* inside venv
     opsfile = tmp_path / "venv" / "ops"
@@ -263,9 +255,7 @@ def test_framework_operator_corrupted_entrypoint(tmp_path, monkeypatch):
     opsdir.mkdir(parents=True)
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": entrypoint}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": entrypoint})
 
     # check
     result = Framework()._check_operator(tmp_path)
@@ -292,9 +282,7 @@ def test_framework_operator_no_ops_imported(tmp_path, monkeypatch, import_line):
     opsdir.mkdir(parents=True)
 
     # the result from previously run Language
-    monkeypatch.setitem(
-        shared_state, "language", {"result": "python", "entrypoint": entrypoint}
-    )
+    monkeypatch.setitem(shared_state, "language", {"result": "python", "entrypoint": entrypoint})
 
     # check
     result = Framework()._check_operator(tmp_path)
@@ -482,9 +470,7 @@ def create_fake_checker(**kwargs):
     Receive generic kwargs and process them as a dict for the defaults, as we can't declare
     the name in the function definition and then use it in the class definition.
     """
-    params = dict(
-        check_type="type", name="name", url="url", text="text", result="result"
-    )
+    params = dict(check_type="type", name="name", url="url", text="text", result="result")
     params.update(kwargs)
 
     class FakeChecker:
@@ -551,9 +537,7 @@ def test_analyze_ignore_linter_warning(config):
     FakeChecker3 = create_fake_checker(check_type=CheckType.error, name="name3")
 
     config.analysis.ignore.linters.append("name2")
-    with patch(
-        "charmcraft.linters.CHECKERS", [FakeChecker1, FakeChecker2, FakeChecker3]
-    ):
+    with patch("charmcraft.linters.CHECKERS", [FakeChecker1, FakeChecker2, FakeChecker3]):
         result = analyze(config, "somepath")
 
     res1, res2 = result
@@ -568,9 +552,7 @@ def test_analyze_ignore_linter_error(config):
     FakeChecker3 = create_fake_checker(check_type=CheckType.error, name="name3")
 
     config.analysis.ignore.linters.append("name3")
-    with patch(
-        "charmcraft.linters.CHECKERS", [FakeChecker1, FakeChecker2, FakeChecker3]
-    ):
+    with patch("charmcraft.linters.CHECKERS", [FakeChecker1, FakeChecker2, FakeChecker3]):
         result = analyze(config, "somepath")
 
     res1, res2 = result

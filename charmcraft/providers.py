@@ -99,9 +99,7 @@ def clean_project_environments(
         match_regex = f"^charmcraft-{charm_name}-{inode}-.+-.+-.+$"
         if re.match(match_regex, name):
             logger.debug("Deleting container %r.", name)
-            lxc.delete(
-                instance_name=name, force=True, project=lxd_project, remote=lxd_remote
-            )
+            lxc.delete(instance_name=name, force=True, project=lxd_project, remote=lxd_remote)
             deleted.append(name)
         else:
             logger.debug("Not deleting container %r.", name)
@@ -270,9 +268,7 @@ def launched_environment(
     )
 
     # Mount project.
-    instance.mount(
-        host_source=project_path, target=get_managed_environment_project_path()
-    )
+    instance.mount(host_source=project_path, target=get_managed_environment_project_path())
 
     try:
         yield instance

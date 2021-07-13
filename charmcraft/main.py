@@ -38,9 +38,7 @@ class HelpCommand(BaseCommand):
 
     name = "help"
     help_msg = "Provide help on charmcraft usage"
-    overview = (
-        "Produce a general or a detailed charmcraft help, or a specific command one."
-    )
+    overview = "Produce a general or a detailed charmcraft help, or a specific command one."
     common = True
 
     def fill_parser(self, parser):
@@ -64,10 +62,7 @@ class HelpCommand(BaseCommand):
         to validate if the help requested is on a valid one, or even parse its data.
         """
         retcode = 0
-        if (
-            parsed_args.command_to_help is None
-            or parsed_args.command_to_help == self.name
-        ):
+        if parsed_args.command_to_help is None or parsed_args.command_to_help == self.name:
             # help on no command in particular, get general text
             help_text = get_general_help(detailed=parsed_args.all)
         elif parsed_args.command_to_help not in all_commands:
@@ -144,9 +139,7 @@ GLOBAL_ARGS = [
         "--verbose",
         "Show debug information and be more verbose",
     ),
-    _Global(
-        "quiet", "flag", "-q", "--quiet", "Only show warnings and errors, not progress"
-    ),
+    _Global("quiet", "flag", "-q", "--quiet", "Only show warnings and errors, not progress"),
     _Global(
         "project_dir",
         "option",
@@ -171,9 +164,7 @@ def _get_global_options():
     """Return the global flags ready to present as options in the help messages."""
     options = []
     for arg in GLOBAL_ARGS:
-        options.append(
-            ("{}, {}".format(arg.short_option, arg.long_option), arg.help_message)
-        )
+        options.append(("{}, {}".format(arg.short_option, arg.long_option), arg.help_message))
     return options
 
 
@@ -283,9 +274,7 @@ class Dispatcher:
                     try:
                         value = next(sysargs)
                     except StopIteration:
-                        raise CommandError(
-                            "The 'project-dir' option expects one argument."
-                        )
+                        raise CommandError("The 'project-dir' option expects one argument.")
                 global_args[arg.name] = value
             elif sysarg.startswith(options_with_equal):
                 option, value = sysarg.split("=", 1)
@@ -298,16 +287,12 @@ class Dispatcher:
 
         # control and use quiet/verbose options
         if global_args["quiet"] and global_args["verbose"]:
-            raise CommandError(
-                "The 'verbose' and 'quiet' options are mutually exclusive."
-            )
+            raise CommandError("The 'verbose' and 'quiet' options are mutually exclusive.")
         if global_args["quiet"]:
             message_handler.set_mode(message_handler.QUIET)
         elif global_args["verbose"]:
             message_handler.set_mode(message_handler.VERBOSE)
-        logger.debug(
-            "Raw pre-parsed sysargs: args=%s filtered=%s", global_args, filtered_sysargs
-        )
+        logger.debug("Raw pre-parsed sysargs: args=%s filtered=%s", global_args, filtered_sysargs)
 
         # if help requested, transform the parameters to make that explicit
         if global_args["help"]:
@@ -336,10 +321,7 @@ class Dispatcher:
         if isinstance(self.command, HelpCommand):
             self.command.run(self.parsed_args, self.commands)
         else:
-            if (
-                self.command.needs_config
-                and not self.command.config.project.config_provided
-            ):
+            if self.command.needs_config and not self.command.config.project.config_provided:
                 raise CommandError(
                     "The specified command needs a valid 'charmcraft.yaml' configuration file (in "
                     "the current directory or where specified with --project-dir option); see "

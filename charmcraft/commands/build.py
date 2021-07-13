@@ -271,9 +271,7 @@ class Builder:
         self, *, bases_index: int, build_on: Base, build_on_index: int
     ) -> str:
         """Pack instance in Charm."""
-        charm_name = format_charm_file_name(
-            self.metadata.name, self.config.bases[bases_index]
-        )
+        charm_name = format_charm_file_name(self.metadata.name, self.config.bases[bases_index])
 
         # If building in project directory, use the project path as the working
         # directory. The output charms will be placed in the correct directory
@@ -363,9 +361,7 @@ class Builder:
         """
         logger.debug("Linking in generic paths")
 
-        for basedir, dirnames, filenames in os.walk(
-            str(self.charmdir), followlinks=False
-        ):
+        for basedir, dirnames, filenames in os.walk(str(self.charmdir), followlinks=False):
             abs_basedir = pathlib.Path(basedir)
             rel_basedir = abs_basedir.relative_to(self.charmdir)
 
@@ -376,9 +372,7 @@ class Builder:
                 abs_path = abs_basedir / name
 
                 if self.ignore_rules.match(str(rel_path), is_dir=True):
-                    logger.debug(
-                        "Ignoring directory because of rules: %r", str(rel_path)
-                    )
+                    logger.debug("Ignoring directory because of rules: %r", str(rel_path))
                     ignored.append(pos)
                 elif abs_path.is_symlink():
                     dest_path = self.buildpath / rel_path
@@ -474,17 +468,13 @@ class Builder:
             cmd = [
                 "pip3",
                 "install",  # base command
-                "--target={}".format(
-                    venvpath
-                ),  # put all the resulting files in that specific dir
+                "--target={}".format(venvpath),  # put all the resulting files in that specific dir
             ]
             if _pip_needs_system():
                 logger.debug("adding --system to work around pip3 defaulting to --user")
                 cmd.append("--system")
             for reqspath in self.requirement_paths:
-                cmd.append(
-                    "--requirement={}".format(reqspath)
-                )  # the dependencies file(s)
+                cmd.append("--requirement={}".format(reqspath))  # the dependencies file(s)
             retcode = polite_exec(cmd)
             if retcode:
                 raise CommandError("problems installing dependencies")
@@ -534,9 +524,7 @@ class Validator:
 
         for bases_index in bases_indices:
             if bases_index < 0:
-                raise CommandError(
-                    f"Bases index '{bases_index}' is invalid (must be >= 0)."
-                )
+                raise CommandError(f"Bases index '{bases_index}' is invalid (must be >= 0).")
 
             if not self.config.bases:
                 raise CommandError(
@@ -563,9 +551,7 @@ class Validator:
             dirpath = dirpath.expanduser().absolute()
 
         if not dirpath.exists():
-            raise CommandError(
-                "Charm directory was not found: {!r}".format(str(dirpath))
-            )
+            raise CommandError("Charm directory was not found: {!r}".format(str(dirpath)))
         if not dirpath.is_dir():
             raise CommandError(
                 "Charm directory is not really a directory: {!r}".format(str(dirpath))
@@ -582,19 +568,13 @@ class Validator:
             filepath = filepath.expanduser().absolute()
 
         if not filepath.exists():
-            raise CommandError(
-                "Charm entry point was not found: {!r}".format(str(filepath))
-            )
+            raise CommandError("Charm entry point was not found: {!r}".format(str(filepath)))
         if self.basedir not in filepath.parents:
             raise CommandError(
-                "Charm entry point must be inside the project: {!r}".format(
-                    str(filepath)
-                )
+                "Charm entry point must be inside the project: {!r}".format(str(filepath))
             )
         if not os.access(filepath, os.X_OK):
-            raise CommandError(
-                "Charm entry point must be executable: {!r}".format(str(filepath))
-            )
+            raise CommandError("Charm entry point must be executable: {!r}".format(str(filepath)))
         return filepath
 
     def validate_requirement(self, filepaths):
@@ -611,9 +591,7 @@ class Validator:
         filepaths = [x.expanduser().absolute() for x in filepaths]
         for fpath in filepaths:
             if not fpath.exists():
-                raise CommandError(
-                    "the requirements file was not found: {!r}".format(str(fpath))
-                )
+                raise CommandError("the requirements file was not found: {!r}".format(str(fpath)))
         return filepaths
 
 
@@ -652,8 +630,7 @@ class BuildCommand(BaseCommand):
             "-e",
             "--entrypoint",
             type=pathlib.Path,
-            help="The executable which is the operator entry point; "
-            "defaults to 'src/charm.py'",
+            help="The executable which is the operator entry point; defaults to 'src/charm.py'",
         )
         parser.add_argument(
             "-r",

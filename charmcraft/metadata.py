@@ -47,9 +47,7 @@ class CharmMetadata(pydantic.BaseModel, frozen=True, validate_all=True):
         try:
             return cls.parse_obj(obj)
         except pydantic.error_wrappers.ValidationError as error:
-            raise CommandError(
-                format_pydantic_errors(error.errors(), file_name=CHARM_METADATA)
-            )
+            raise CommandError(format_pydantic_errors(error.errors(), file_name=CHARM_METADATA))
 
 
 def parse_metadata_yaml(charm_dir: pathlib.Path) -> Dict[str, Any]:

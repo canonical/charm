@@ -29,9 +29,7 @@ def test_notice_ok(monkeypatch, caplog):
     caplog.set_level(logging.WARNING, logger="charmcraft")
 
     monkeypatch.setitem(_DEPRECATION_MESSAGES, "dn666", "Test message for the user.")
-    monkeypatch.setattr(
-        deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}"
-    )
+    monkeypatch.setattr(deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}")
 
     notify_deprecation("dn666")
     expected = [
@@ -46,9 +44,7 @@ def test_notice_skipped_in_managed_mode(monkeypatch, caplog):
     caplog.set_level(logging.WARNING, logger="charmcraft")
 
     monkeypatch.setitem(_DEPRECATION_MESSAGES, "dn666", "Test message for the user.")
-    monkeypatch.setattr(
-        deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}"
-    )
+    monkeypatch.setattr(deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}")
 
     with patch(
         "charmcraft.deprecations.is_charmcraft_running_in_managed_mode",
@@ -77,9 +73,7 @@ def test_log_deprecation_only_once(monkeypatch, caplog):
     caplog.set_level(logging.WARNING, logger="charmcraft")
 
     monkeypatch.setitem(_DEPRECATION_MESSAGES, "dn666", "Test message for the user.")
-    monkeypatch.setattr(
-        deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}"
-    )
+    monkeypatch.setattr(deprecations, "_DEPRECATION_URL_FMT", "http://docs.com/#{deprecation_id}")
 
     # call twice, log once
     notify_deprecation("dn666")
