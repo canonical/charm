@@ -16,6 +16,7 @@
 
 import errno
 import filecmp
+import hashlib
 import logging
 import os
 import pathlib
@@ -30,6 +31,7 @@ from typing import List
 from unittest.mock import call, patch
 
 import pytest
+import responses
 import yaml
 
 from charmcraft import linters
@@ -2169,6 +2171,146 @@ def test_build_using_linters_attributes(basic_project, caplog, monkeypatch, conf
         ]
     }
     assert manifest["analysis"] == expected
+
+
+@responses.activate
+def test_build_reify_schemas(tmp_path, monkeypatch, config):
+    """Integration test: schemas defined in metadata.yaml get downloaded during build."""
+    build_dir = tmp_path / BUILD_DIRNAME
+    build_dir.mkdir()
+
+    for rel_type in ["requires", "provides", "peers"]:
+        responses.add(
+            responses.GET,
+            f"http://foo.com/schema-{rel_type}.yaml",
+            json={"type": rel_type},
+        )
+
+    # the metadata (save it and restore to later check)
+    metadata_data = {
+        "name": "name-from-metadata",
+        "requires": {
+            "relation-name": {
+                "schema": "http://foo.com/schema-requires.yaml",
+            }
+        },
+        "provides": {
+            "relation-name": {
+                "schema": "http://foo.com/schema-provides.yaml",
+            }
+        },
+        "peers": {
+            "relation-name": {
+                "schema": "http://foo.com/schema-peers.yaml",
+            }
+        },
+    }
+
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(yaml.safe_dump(metadata_data))
+
+    monkeypatch.chdir(tmp_path)  # so the zip file is left in the temp dir
+    builder = Builder(
+        {
+            "from": tmp_path,
+            "entrypoint": tmp_path,
+            "requirement": [],
+        },
+        config,
+    )
+
+    monkeypatch.setenv("CHARMCRAFT_MANAGED_MODE", "1")
+    with patch(
+        "charmcraft.commands.build.check_if_base_matches_host",
+        return_value=(True, None),
+    ):
+        zipname = builder.run()[0]
+
+    zf = zipfile.ZipFile(zipname)
+
+    for rel_type in ("requires", "provides", "peers"):
+        schema = f"http://foo.com/schema-{rel_type}.yaml"
+        h = hashlib.md5()
+        h.update(schema.encode("utf-8"))
+        fname = "schemas/" + h.hexdigest()
+
+        assert yaml.safe_load(zf.read(fname)) == {"type": rel_type}
+
+
+def test_build_invalid_schema(tmp_path, monkeypatch, config):
+    """Integration test: error is raised for invalid schema URL."""
+    build_dir = tmp_path / BUILD_DIRNAME
+    build_dir.mkdir()
+
+    # the metadata (save it and restore to later check)
+    metadata_data = {
+        "name": "name-from-metadata",
+        "requires": {
+            "relation-name": {
+                "schema": "bad-url",
+            }
+        },
+    }
+
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(yaml.safe_dump(metadata_data))
+
+    monkeypatch.chdir(tmp_path)  # so the zip file is left in the temp dir
+    builder = Builder(
+        {
+            "from": tmp_path,
+            "entrypoint": tmp_path,
+            "requirement": [],
+        },
+        config,
+    )
+
+    monkeypatch.setenv("CHARMCRAFT_MANAGED_MODE", "1")
+    with pytest.raises(
+        CommandError, match="Failed to fetch schema from 'bad-url'"
+    ), patch(
+        "charmcraft.commands.build.check_if_base_matches_host",
+        return_value=(True, None),
+    ):
+        builder.run()[0]
+
+
+def test_build_bad_schema_type(tmp_path, monkeypatch, config):
+    """Integration test: error is raised for invalid schema type."""
+    build_dir = tmp_path / BUILD_DIRNAME
+    build_dir.mkdir()
+
+    # the metadata (save it and restore to later check)
+    metadata_data = {
+        "name": "name-from-metadata",
+        "requires": {
+            "relation-name": {
+                "schema": 1,
+            }
+        },
+    }
+
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(yaml.safe_dump(metadata_data))
+
+    monkeypatch.chdir(tmp_path)  # so the zip file is left in the temp dir
+    builder = Builder(
+        {
+            "from": tmp_path,
+            "entrypoint": tmp_path,
+            "requirement": [],
+        },
+        config,
+    )
+
+    monkeypatch.setenv("CHARMCRAFT_MANAGED_MODE", "1")
+    with pytest.raises(
+        CommandError, match="Schema must be a URL, got type <class 'int'>"
+    ), patch(
+        "charmcraft.commands.build.check_if_base_matches_host",
+        return_value=(True, None),
+    ):
+        builder.run()[0]
 
 
 # --- tests for relativise helper

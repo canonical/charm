@@ -17,6 +17,7 @@
 """Infrastructure for the 'build' command."""
 
 import errno
+import hashlib
 import logging
 import os
 import pathlib
@@ -26,6 +27,9 @@ import zipfile
 from typing import List, Optional
 
 from charmcraft import linters
+import requests
+import yaml
+
 from charmcraft.bases import check_if_base_matches_host
 from charmcraft.cmdbase import BaseCommand, CommandError
 from charmcraft.config import Base, BasesConfiguration, Config
@@ -38,7 +42,7 @@ from charmcraft.env import (
 from charmcraft.jujuignore import JujuIgnore, default_juju_ignore
 from charmcraft.logsetup import message_handler
 from charmcraft.manifest import create_manifest
-from charmcraft.metadata import parse_metadata_yaml
+from charmcraft.metadata import parse_metadata_yaml, CHARM_METADATA
 from charmcraft.providers import (
     capture_logs_from_instance,
     ensure_provider_is_available,
@@ -168,6 +172,7 @@ class Builder:
         linked_entrypoint = self.handle_generic_paths()
         self.handle_dispatcher(linked_entrypoint)
         self.handle_dependencies()
+        self.handle_schemas()
 
         linting_results = []
         # run linters, present them to the user according to their type, and fail if necessary
@@ -339,6 +344,28 @@ class Builder:
                 ignore.extend_patterns(ignores)
         return ignore
 
+    def _get_schema(self, schema):
+        """Ensure schema is retrieved if necessary."""
+        if not isinstance(schema, str):
+            raise CommandError("Schema must be a URL.")
+
+        schemas_dir = self.buildpath / "schemas"
+
+        h = hashlib.md5()
+        h.update(schema.encode("utf-8"))
+        schema_file = schemas_dir / h.hexdigest()
+
+        if schema_file.exists():
+            return
+
+        try:
+            response = requests.get(schema)
+            response.raise_for_status()
+        except requests.RequestException:
+            raise CommandError(f"Failed to fetch schema from {schema!r}")
+
+        schema_file.write_text(response.text)
+
     def create_symlink(self, src_path, dest_path):
         """Create a symlink in dest_path pointing relatively like src_path.
 
@@ -462,6 +489,27 @@ class Builder:
             if not dest_hook.exists():
                 relative_link = relativise(dest_hook, dispatch_path)
                 dest_hook.symlink_to(relative_link)
+
+    def handle_schemas(self):
+        """Handle fetching any defined schemas."""
+        logger.debug("Fetching any schemas from metadata.yaml")
+        metadata_yaml = self.charmdir / CHARM_METADATA
+        schemas_dir = self.buildpath / "schemas"
+        schemas_dir.mkdir()
+
+        metadata = yaml.safe_load(metadata_yaml.read_text())
+
+        for rel_type in ("requires", "provides", "peers"):
+            for relation in metadata.get(rel_type, {}).values():
+                try:
+                    schema = relation["schema"]
+                except KeyError:
+                    continue
+
+                if not isinstance(schema, str):
+                    raise CommandError(f"Schema must be a URL, got type {type(schema)}")
+
+                self._get_schema(relation["schema"])
 
     def handle_dependencies(self):
         """Handle from-directory and virtualenv dependencies."""
