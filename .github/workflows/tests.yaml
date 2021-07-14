@@ -28,10 +28,30 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install charmcraft and dependencies
         run: |
+          case "${{ matrix.os }}" in
+            ubuntu-*)
+              sudo apt update
+              sudo apt install -y python3-pip python3-venv libapt-pkg-dev
+              ;;
+          esac
+          python3 -m venv ${HOME}/.venv
+          source ${HOME}/.venv/bin/activate
+          pip install -U pip wheel setuptools
+          case "${{ matrix.os }}" in
+            ubuntu-18.04)
+              # pip 20.2 breaks python3-apt, so pin the version before building
+              pip install pip==20.1
+              pip install -U -r requirements-bionic.txt
+              ;;
+            ubuntu-20.04)
+              pip install -U -r requirements-focal.txt
+              ;;
+          esac
           pip install -U -r requirements-dev.txt
           pip install -e .
       - name: Run tests
         run: |
+          source ${HOME}/.venv/bin/activate
           pytest -ra tests
 
   snap-build:

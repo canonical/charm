@@ -94,8 +94,10 @@ parts:
     plugin: python
     requirements:
       - requirements.txt
+      - requirements-focal.txt
     build-packages:
       - libffi-dev
+      - libapt-pkg-dev
     stage-packages:
       - git
     # snapcraft uses venv, which doesn't pull in wheel (as opposed to virtualenv)

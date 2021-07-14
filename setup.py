@@ -32,6 +32,7 @@ install_requires = [
     "appdirs",
     "attrs",
     "craft-providers",
+    "craft-parts @ https://github.com/canonical/craft-parts/archive/refs/tags/v1.0-alpha.tar.gz",
     "humanize>=2.6.0",
     "jsonschema",
     "jinja2",
@@ -44,6 +45,17 @@ install_requires = [
     "requests-unixsocket",
     "tabulate",
 ]
+
+try:
+    os_release = open("/etc/os-release").read()
+    ubuntu = "ID=ubuntu" in os_release
+except FileNotFoundError:
+    ubuntu = False
+
+if ubuntu:
+    install_requires += [
+        "python-apt",
+    ]
 
 dev_requires = [
     "black",
