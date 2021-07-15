@@ -26,6 +26,7 @@ from charmcraft.linters import (
     FATAL,
     Framework,
     IGNORED,
+    JujuMetadata,
     Language,
     UNKNOWN,
     analyze,
@@ -38,6 +39,8 @@ EXAMPLE_DISPATCH = """
 
 PYTHONPATH=lib:venv ./charm.py
 """
+
+# --- tests for Language checker
 
 
 def test_language_python(tmp_path):
@@ -114,6 +117,9 @@ def test_language_entrypoint_no_exec(tmp_path):
     entrypoint.touch()
     result = Language().run(tmp_path)
     assert result == Language.Result.unknown
+
+
+# --- tests for Framework checker
 
 
 def test_framework_text_before_check():
@@ -313,11 +319,26 @@ def test_framework_operator_no_ops_imported(tmp_path, monkeypatch, import_line):
         "from charms.reactive.stuff import Stuff",
     ],
 )
-def test_framework_reactive_used_ok(tmp_path, monkeypatch, import_line):
-    """The reactive framework was used."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+@pytest.mark.parametrize(
+    "metadata_result",
+    [
+        JujuMetadata.Result.ok,
+        JujuMetadata.Result.errors,
+    ],
+)
+def test_framework_reactive_used_ok(
+    tmp_path, monkeypatch, import_line, metadata_result
+):
+    """The reactive framework was used.
+
+    Parametrized args:
+    - import_line: different ways to express the import
+    - metadata_result: the result of JujuMetadata (which is not important as it only uses the name)
+    """
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": metadata_result, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -334,8 +355,13 @@ def test_framework_reactive_used_ok(tmp_path, monkeypatch, import_line):
     assert result is True
 
 
-def test_framework_reactive_no_metadata(tmp_path):
-    """Missing the metadata file."""
+def test_framework_reactive_no_metadata(tmp_path, monkeypatch):
+    """No useful name from metadata."""
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.errors, "name": None}
+    )
+
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
     entrypoint.parent.mkdir()
@@ -351,11 +377,12 @@ def test_framework_reactive_no_metadata(tmp_path):
     assert result is False
 
 
-def test_framework_reactive_no_entrypoint(tmp_path):
+def test_framework_reactive_no_entrypoint(tmp_path, monkeypatch):
     """Missing entrypoint file."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # the reactive lib is used
     reactive_lib = tmp_path / "wheelhouse" / "charms.reactive-1.0.1.zip"
@@ -367,11 +394,12 @@ def test_framework_reactive_no_entrypoint(tmp_path):
     assert result is False
 
 
-def test_framework_reactive_unaccesible_entrypoint(tmp_path):
+def test_framework_reactive_unaccesible_entrypoint(tmp_path, monkeypatch):
     """Cannot read the entrypoint file."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -389,11 +417,12 @@ def test_framework_reactive_unaccesible_entrypoint(tmp_path):
     assert result is False
 
 
-def test_framework_reactive_corrupted_entrypoint(tmp_path):
+def test_framework_reactive_corrupted_entrypoint(tmp_path, monkeypatch):
     """The entrypoint is not really a Python file."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -410,11 +439,12 @@ def test_framework_reactive_corrupted_entrypoint(tmp_path):
     assert result is False
 
 
-def test_framework_reactive_no_wheelhouse(tmp_path):
+def test_framework_reactive_no_wheelhouse(tmp_path, monkeypatch):
     """The wheelhouse directory does not exist."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -426,11 +456,12 @@ def test_framework_reactive_no_wheelhouse(tmp_path):
     assert result is False
 
 
-def test_framework_reactive_no_reactive_lib(tmp_path):
+def test_framework_reactive_no_reactive_lib(tmp_path, monkeypatch):
     """The wheelhouse directory has no reactive lib."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -460,9 +491,10 @@ def test_framework_reactive_no_reactive_lib(tmp_path):
 )
 def test_framework_reactive_no_reactive_imported(tmp_path, monkeypatch, import_line):
     """Different imports that are NOT importing the Reactive Framework."""
-    # metdata file with proper name
-    metadata_file = tmp_path / "metadata.yaml"
-    metadata_file.write_text("name: foobar")
+    # the result from previously run JujuMetadata
+    monkeypatch.setitem(
+        shared_state, "metadata", {"result": JujuMetadata.Result.ok, "name": "foobar"}
+    )
 
     # a Python file that imports charms.reactive
     entrypoint = tmp_path / "reactive" / "foobar.py"
@@ -477,6 +509,82 @@ def test_framework_reactive_no_reactive_imported(tmp_path, monkeypatch, import_l
     # check
     result = Framework()._check_reactive(tmp_path)
     assert result is False
+
+
+# --- tests for JujuMetadata checker
+
+
+def test_jujumetadata_all_ok(tmp_path):
+    """All conditions ok for JujuMetadata to result ok."""
+    # metdata file with proper fields
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(
+        """
+        name: foobar
+        summary: Small text.
+        description: Lot of text.
+    """
+    )
+    result = JujuMetadata().run(tmp_path)
+    assert result == JujuMetadata.Result.ok
+    assert shared_state["metadata"]["name"] == "foobar"
+
+
+def test_jujumetadata_missing_file(tmp_path):
+    """No metadata.yaml file at all."""
+    result = JujuMetadata().run(tmp_path)
+    assert result == JujuMetadata.Result.errors
+    assert shared_state["metadata"]["name"] is None
+
+
+def test_jujumetadata_file_corrupted(tmp_path):
+    """The metadata.yaml file is not valid YAML."""
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(" - \n-")
+    result = JujuMetadata().run(tmp_path)
+    assert result == JujuMetadata.Result.errors
+    assert shared_state["metadata"]["name"] is None
+
+
+def test_jujumetadata_missing_name(tmp_path):
+    """A required "name" is missing in the metadata file."""
+    # metdata file with not all fields
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(
+        """
+        summary: Small text.
+        description: Lot of text.
+    """
+    )
+    result = JujuMetadata().run(tmp_path)
+    assert result == JujuMetadata.Result.errors
+    assert shared_state["metadata"]["name"] is None
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        """
+    name: foobar
+    summary: Small text.
+    """,
+        """
+    name: foobar
+    description: Lot of text.
+    """,
+    ],
+)
+def test_jujumetadata_missing_field(tmp_path, fields):
+    """A required field is missing in the metadata file."""
+    # metdata file with not all fields
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(fields)
+    result = JujuMetadata().run(tmp_path)
+    assert result == JujuMetadata.Result.errors
+    assert shared_state["metadata"]["name"] == "foobar"
+
+
+# --- tests for analyze function
 
 
 def create_fake_checker(**kwargs):
@@ -614,6 +722,9 @@ def test_analyze_crash_lint(config):
     assert res.result == FATAL
 
 
+# --- tests for sharing state between checkers
+
+
 def test_shared_state_dependency_language_framework(config, tmp_path):
     """Verify that dependency between Language and Framework is ok in CHECKERS."""
     # simplify the list of checkers to run, but keeping the order between the two we want
@@ -632,4 +743,22 @@ def test_shared_state_dependency_language_framework(config, tmp_path):
 
     r1, r2 = result
     assert r1.name == Language.name
+    assert r2.name == Framework.name
+
+
+def test_shared_state_dependency_jujumetadata_framework(config, tmp_path):
+    """Verify that dependency between JujuMetadata and Framework is ok in CHECKERS."""
+    # simplify the list of checkers to run, but keeping the order between the two we want
+    # to exercise
+    test_checkers = [c for c in CHECKERS if c is JujuMetadata or c is Framework]
+
+    # create a fake metadata that even JujuMetadta ending in error, have a proper useful 'name'
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text("name: testname")
+
+    with patch("charmcraft.linters.CHECKERS", test_checkers):
+        result = analyze(config, tmp_path)
+
+    r1, r2 = result
+    assert r1.name == JujuMetadata.name
     assert r2.name == Framework.name

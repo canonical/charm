@@ -128,6 +128,11 @@ class PackCommand(BaseCommand):
             help="Index of 'bases' configuration to build (can be used multiple "
             "times); defaults to all",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Force packing even after finding lint errors",
+        )
 
     def run(self, parsed_args):
         """Run the command."""
@@ -155,13 +160,14 @@ class PackCommand(BaseCommand):
                 "entrypoint": parsed_args.entrypoint,
                 "requirement": parsed_args.requirement,
                 "bases_indices": parsed_args.bases_index,
+                "force": parsed_args.force,
             }
         )
 
         # mimic the "build" command
         validator = build.Validator(self.config)
         args = validator.process(build_args)
-        logger.debug("working arguments: %s", args)
+        logger.debug("Working arguments: %s", args)
         builder = build.Builder(args, self.config)
         builder.run(
             parsed_args.bases_index, destructive_mode=build_args.destructive_mode

@@ -103,7 +103,7 @@ _charmcraft()
                     _filedir py
                     ;;
                 *)
-                    COMPREPLY=( $(compgen -W "${globals[*]} --entrypoint --requirement" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "${globals[*]} --entrypoint --requirement --force" -- "$cur") )
                     ;;
             esac
             ;;

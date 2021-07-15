@@ -36,6 +36,7 @@ noargs = Namespace(
     requirement=None,
     bases_index=[],
     destructive_mode=False,
+    force=None,
 )
 
 
@@ -436,6 +437,7 @@ def test_charm_parameters_validator(config, tmp_path):
         requirement="test-reqs",
         entrypoint="test-epoint",
         bases_index=[],
+        force=True,
     )
     config.set(
         type="charm",
@@ -455,6 +457,7 @@ def test_charm_parameters_validator(config, tmp_path):
                 "requirement": "test-reqs",
                 "entrypoint": "test-epoint",
                 "bases_indices": [],
+                "force": True,
             }
         )
     )

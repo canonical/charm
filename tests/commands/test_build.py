@@ -58,7 +58,11 @@ def basic_project(tmp_path):
     build_dir.mkdir()
 
     # the metadata
-    metadata_data = {"name": "name-from-metadata"}
+    metadata_data = {
+        "name": "name-from-metadata",
+        "summary": "test-summ",
+        "description": "text",
+    }
     metadata_file = tmp_path / "metadata.yaml"
     metadata_raw = yaml.dump(metadata_data).encode("ascii")
     metadata_file.write_bytes(metadata_raw)
@@ -106,6 +110,7 @@ def basic_project_builder(basic_project):
                 "from": basic_project,
                 "entrypoint": basic_project / "src" / "charm.py",
                 "requirement": [],
+                "force": False,
             },
             config,
         )
@@ -413,6 +418,21 @@ def test_validator_requirement_exist(config):
         validator.validate_requirement([pathlib.Path("/not_really_there.txt")])
 
 
+@pytest.mark.parametrize(
+    "inp_value,out_value",
+    [
+        (None, False),
+        (False, False),
+        (True, True),
+    ],
+)
+def test_validator_force(config, inp_value, out_value):
+    """'entrypoint' param: checks that the file exists."""
+    validator = Validator(config)
+    result = validator.validate_force(inp_value)
+    assert result == out_value
+
+
 # --- Polite Executor tests
 
 
@@ -489,6 +509,7 @@ def test_build_basic_complete_structure(basic_project, caplog, monkeypatch, conf
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -542,6 +563,7 @@ def test_build_error_without_metadata_yaml(basic_project, monkeypatch):
                 "from": basic_project,
                 "entrypoint": basic_project / "src" / "charm.py",
                 "requirement": [],
+                "force": False,
             },
             config,
         )
@@ -594,6 +616,7 @@ def test_build_checks_provider(basic_project, mock_ensure_provider_is_available)
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -613,6 +636,7 @@ def test_build_checks_provider_error(basic_project, mock_ensure_provider_is_avai
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -631,6 +655,7 @@ def test_build_without_charmcraft_yaml_issues_dn02(basic_project, caplog, monkey
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -766,6 +791,7 @@ def test_build_project_is_cwd(
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -827,6 +853,7 @@ def test_build_project_is_not_cwd(
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -909,6 +936,7 @@ def test_build_bases_index_scenarios_provider(
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1084,6 +1112,7 @@ def test_build_bases_index_scenarios_managed_mode(basic_project, monkeypatch, ca
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": True,
         },
         config,
     )
@@ -1140,6 +1169,7 @@ def test_build_error_no_match_with_charmcraft_yaml(
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1197,6 +1227,7 @@ def test_build_generics_simple_files(tmp_path, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1232,6 +1263,7 @@ def test_build_generics_simple_dir(tmp_path, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1263,6 +1295,7 @@ def test_build_generics_ignored_file(tmp_path, caplog, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1299,6 +1332,7 @@ def test_build_generics_ignored_dir(tmp_path, caplog, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1359,6 +1393,7 @@ def _test_build_generics_tree(tmp_path, caplog, config, *, expect_hardlinks):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1438,6 +1473,7 @@ def test_build_generics_symlink_file(tmp_path, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1471,6 +1507,7 @@ def test_build_generics_symlink_dir(tmp_path, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1510,6 +1547,7 @@ def test_build_generics_symlink_deep(tmp_path, config):
             "from": tmp_path,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1546,6 +1584,7 @@ def test_build_generics_symlink_file_outside(tmp_path, caplog, config):
             "from": project_dir,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1580,6 +1619,7 @@ def test_build_generics_symlink_directory_outside(tmp_path, caplog, config):
             "from": project_dir,
             "entrypoint": entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1614,6 +1654,7 @@ def test_build_generics_different_filetype(tmp_path, caplog, monkeypatch, config
             "from": tmp_path,
             "entrypoint": tmp_path / entrypoint,
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1638,6 +1679,7 @@ def test_build_dispatcher_modern_dispatch_created(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1667,6 +1709,7 @@ def test_build_dispatcher_modern_dispatch_respected(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1691,6 +1734,7 @@ def test_build_dispatcher_classic_hooks_mandatory_created(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1724,6 +1768,7 @@ def test_build_dispatcher_classic_hooks_mandatory_respected(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1765,6 +1810,7 @@ def test_build_dispatcher_classic_hooks_linking_charm_replaced(
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1789,6 +1835,7 @@ def test_build_dependencies_virtualenv_simple(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": ["reqs.txt"],
+            "force": False,
         },
         config,
     )
@@ -1834,6 +1881,7 @@ def test_build_dependencies_needs_system(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": ["reqs"],
+            "force": False,
         },
         config,
     )
@@ -1871,6 +1919,7 @@ def test_build_dependencies_virtualenv_multiple(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": ["reqs1.txt", "reqs2.txt"],
+            "force": False,
         },
         config,
     )
@@ -1908,6 +1957,7 @@ def test_build_dependencies_virtualenv_none(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -1930,6 +1980,7 @@ def test_build_dependencies_virtualenv_error_basicpip(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": ["something"],
+            "force": False,
         },
         config,
     )
@@ -1954,6 +2005,7 @@ def test_build_dependencies_virtualenv_error_installing(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": ["something"],
+            "force": False,
         },
         config,
     )
@@ -2018,6 +2070,7 @@ def test_build_package_tree_structure(tmp_path, monkeypatch, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -2055,6 +2108,7 @@ def test_build_package_name(tmp_path, monkeypatch, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -2075,6 +2129,7 @@ def test_builder_without_jujuignore(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -2098,6 +2153,7 @@ def test_builder_with_jujuignore(tmp_path, config):
             "from": tmp_path,
             "entrypoint": "whatever",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -2110,14 +2166,14 @@ def test_builder_with_jujuignore(tmp_path, config):
     assert not ignore.match("myfile.c", is_dir=False)
 
 
-def test_build_using_linters_attributes(basic_project, caplog, monkeypatch, config):
-    """Use linters, log results, and save them in the manifest."""
-    caplog.set_level(logging.DEBUG, logger="charmcraft")
+def test_build_using_linters_attributes(basic_project, monkeypatch, config):
+    """Generic use of linters, pass them ok to their proceessor and save them in the manifest."""
     builder = Builder(
         {
             "from": basic_project,
             "entrypoint": basic_project / "src" / "charm.py",
             "requirement": [],
+            "force": False,
         },
         config,
     )
@@ -2146,18 +2202,13 @@ def test_build_using_linters_attributes(basic_project, caplog, monkeypatch, conf
         return_value=(True, None),
     ):
         with patch("charmcraft.linters.analyze") as mock_analyze:
-            mock_analyze.return_value = linting_results
-            zipnames = builder.run()
+            with patch.object(Builder, "show_linting_results") as mock_show_lint:
+                mock_analyze.return_value = linting_results
+                zipnames = builder.run()
 
-    # check the analyze function was called properly
+    # check the analyze and processing functions were called properly
     mock_analyze.assert_called_with(config, builder.buildpath)
-
-    # logs (do NOT see the ignored check)
-    expected = [
-        "Check result: check-name-1 [attribute] check-result-1 (text; see more at url).",
-    ]
-    logged = [rec.message for rec in caplog.records]
-    assert all(e in logged for e in expected)
+    mock_show_lint.assert_called_with(linting_results)
 
     # the manifest should have all the results (including the ignored one)
     zf = zipfile.ZipFile(zipnames[0])
@@ -2169,6 +2220,167 @@ def test_build_using_linters_attributes(basic_project, caplog, monkeypatch, conf
         ]
     }
     assert manifest["analysis"] == expected
+
+
+def test_show_linters_attributes(basic_project, caplog, config):
+    """Show the linting results, only attributes, one ignored."""
+    caplog.set_level(logging.DEBUG, logger="charmcraft")
+    builder = Builder(
+        {
+            "from": basic_project,
+            "entrypoint": basic_project / "src" / "charm.py",
+            "requirement": [],
+            "force": False,
+        },
+        config,
+    )
+
+    # fake results from the analyzer
+    linting_results = [
+        linters.CheckResult(
+            name="check-name-1",
+            check_type=linters.CheckType.attribute,
+            url="url",
+            text="text",
+            result="check-result-1",
+        ),
+        linters.CheckResult(
+            name="check-name-2",
+            check_type=linters.CheckType.attribute,
+            url="url",
+            text="text",
+            result=linters.IGNORED,
+        ),
+    ]
+
+    builder.show_linting_results(linting_results)
+
+    # logs; do NOT see the ignored check, and nothing in INFO
+    expected = [
+        "Check result: check-name-1 [attribute] check-result-1 (text; see more at url).",
+    ]
+    logged = [rec.message for rec in caplog.records if rec.levelno == logging.DEBUG]
+    assert all(e in logged for e in expected)
+    assert not any(rec for rec in caplog.records if rec.levelno == logging.INFO)
+
+
+def test_show_linters_lint_warnings(basic_project, caplog, config):
+    """Show the linting results, some warnings."""
+    caplog.set_level(logging.DEBUG, logger="charmcraft")
+    builder = Builder(
+        {
+            "from": basic_project,
+            "entrypoint": basic_project / "src" / "charm.py",
+            "requirement": [],
+            "force": False,
+        },
+        config,
+    )
+
+    # fake result from the analyzer
+    linting_results = [
+        linters.CheckResult(
+            name="check-name",
+            check_type=linters.CheckType.lint,
+            url="check-url",
+            text="Some text",
+            result=linters.WARNINGS,
+        ),
+    ]
+
+    caplog.records.clear()
+    builder.show_linting_results(linting_results)
+
+    # log the warning (with the title!); nothing on DEBUG
+    expected = [
+        "Lint Warnings:",
+        "- check-name: Some text (check-url)",
+    ]
+    assert expected == [
+        rec.message for rec in caplog.records if rec.levelno == logging.INFO
+    ]
+    assert not any(rec for rec in caplog.records if rec.levelno == logging.DEBUG)
+
+
+def test_show_linters_lint_errors_normal(basic_project, caplog, config):
+    """Show the linting results, have errors."""
+    caplog.set_level(logging.DEBUG, logger="charmcraft")
+    builder = Builder(
+        {
+            "from": basic_project,
+            "entrypoint": basic_project / "src" / "charm.py",
+            "requirement": [],
+            "force": False,
+        },
+        config,
+    )
+
+    # fake result from the analyzer
+    linting_results = [
+        linters.CheckResult(
+            name="check-name",
+            check_type=linters.CheckType.lint,
+            url="check-url",
+            text="Some text",
+            result=linters.ERRORS,
+        ),
+    ]
+
+    caplog.records.clear()
+    with pytest.raises(CommandError) as cm:
+        builder.show_linting_results(linting_results)
+    exc = cm.value
+    assert str(exc) == "Exiting after lint errors (use --force to pack anyway)."
+    assert exc.retcode == 2
+
+    # log the error (with the title!); nothing on DEBUG
+    expected = [
+        "Lint Errors:",
+        "- check-name: Some text (check-url)",
+    ]
+    assert expected == [
+        rec.message for rec in caplog.records if rec.levelno == logging.INFO
+    ]
+    assert not any(rec for rec in caplog.records if rec.levelno == logging.DEBUG)
+
+
+def test_show_linters_lint_errors_forced(basic_project, caplog, config):
+    """Show the linting results, have errors but the packing is forced."""
+    caplog.set_level(logging.DEBUG, logger="charmcraft")
+    builder = Builder(
+        {
+            "from": basic_project,
+            "entrypoint": basic_project / "src" / "charm.py",
+            "requirement": [],
+            "force": True,
+        },
+        config,
+    )
+
+    # fake result from the analyzer
+    linting_results = [
+        linters.CheckResult(
+            name="check-name",
+            check_type=linters.CheckType.lint,
+            url="check-url",
+            text="Some text",
+            result=linters.ERRORS,
+        ),
+    ]
+
+    caplog.records.clear()
+    builder.show_linting_results(linting_results)
+
+    # log the error (with the title!), and the "pack anyway" message; nothing on DEBUG
+    expected = [
+        "Lint Errors:",
+        "- check-name: Some text (check-url)",
+        "Packing anyway as requested.",
+    ]
+    assert expected == [
+        rec.message for rec in caplog.records if rec.levelno == logging.INFO
+    ]
+    assert not any(rec for rec in caplog.records if rec.levelno == logging.DEBUG)
 
 
 # --- tests for relativise helper
