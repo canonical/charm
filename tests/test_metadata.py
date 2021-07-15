@@ -23,6 +23,24 @@ from charmcraft.cmdbase import CommandError
 from charmcraft.metadata import parse_metadata_yaml
 
 
+def test_parse_metadata_yaml_complete(tmp_path):
+    """Example of parsing with all the optional attributes."""
+    metadata_file = tmp_path / "metadata.yaml"
+    metadata_file.write_text(
+        """
+        name: test-name
+        summary: Test summary
+        description: Lot of text.
+    """
+    )
+
+    metadata = parse_metadata_yaml(tmp_path)
+
+    assert metadata.name == "test-name"
+    assert metadata.summary == "Test summary"
+    assert metadata.description == "Lot of text."
+
+
 @pytest.mark.parametrize("name", ["name1", "my-charm-foo"])
 def test_parse_metadata_yaml_valid_names(tmp_path, name):
     metadata_file = tmp_path / "metadata.yaml"

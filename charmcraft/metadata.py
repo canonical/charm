@@ -35,6 +35,8 @@ class CharmMetadata(pydantic.BaseModel, frozen=True, validate_all=True):
     """Object representing metadata.yaml contents."""
 
     name: pydantic.StrictStr
+    summary: pydantic.StrictStr = ""
+    description: pydantic.StrictStr = ""
 
     @classmethod
     def unmarshal(cls, obj: Dict[str, Any]):
@@ -52,10 +54,12 @@ class CharmMetadata(pydantic.BaseModel, frozen=True, validate_all=True):
             )
 
 
-def parse_metadata_yaml(charm_dir: pathlib.Path) -> Dict[str, Any]:
+def parse_metadata_yaml(charm_dir: pathlib.Path) -> CharmMetadata:
     """Parse project's metadata.yaml.
 
-    :returns: Metadata dictionary object, if it exists.
+    :returns: a CharmMetadata object.
+
+    :raises: CommandError if metadata does not exist.
     """
     metadata_path = charm_dir / CHARM_METADATA
     logger.debug("Parsing %r", str(metadata_path))

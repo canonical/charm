@@ -165,10 +165,8 @@ class Framework:
 
     def _check_reactive(self, basedir: pathlib.Path) -> bool:
         """Detect if the Reactive Framework is used."""
-        try:
-            entrypoint_name = parse_metadata_yaml(basedir).name
-        except Exception:
-            # file not found, corrupted, no name in it, etc.
+        entrypoint_name = shared_state[JujuMetadata.name]["name"]
+        if entrypoint_name is None:
             return False
 
         wheelhouse_dir = basedir / "wheelhouse"
@@ -197,10 +195,48 @@ class Framework:
         return result
 
 
+class JujuMetadata:
+    """Check that the metadata.yaml file exists and is sane.
+
+    The charm is considered to have a valid metadata if the following checks are true:
+
+    - the metadata.yaml is present
+    - it is a valid YAML file
+    - it has at least the following fields: name, summary, and description
+    """
+
+    check_type = CheckType.lint
+    name = "metadata"
+    url = "https://juju.is/docs/sdk/charmcraft-analyze#heading--metadata"
+    text = "Problems found with metadata.yaml file."
+
+    # different result constants
+    Result = namedtuple("Result", "ok errors")(ok="ok", errors="errors")
+
+    def run(self, basedir: pathlib.Path) -> str:
+        """Run the proper verifications."""
+        try:
+            metadata = parse_metadata_yaml(basedir)
+        except Exception:
+            # file not found, corrupted, or mandatory "name" not present
+            charm_name = None
+            result = self.Result.errors
+        else:
+            charm_name = metadata.name
+            if metadata.summary and metadata.description:
+                result = self.Result.ok
+            else:
+                result = self.Result.errors
+
+        shared_state[self.name]["name"] = charm_name
+        return result
+
+
 # all checkers to run; the order here is important, as some checkers depend on the
 # results from others
 CHECKERS = [
     Language,
+    JujuMetadata,
     Framework,
 ]
 
